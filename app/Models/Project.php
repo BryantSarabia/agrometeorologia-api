@@ -18,4 +18,12 @@ class Project extends Model
     /* @var array */
     protected $guarded = ['api_key'];
 
+    public function user(){
+       return $this->belongsTo('App\Models\User');
+    }
+
+    public function requests(){
+        return $this->hasMany('App\Models\Request');
+    }
+
 }

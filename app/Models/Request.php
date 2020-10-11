@@ -23,4 +23,8 @@ class Request extends Model
      * @var bool
      */
     public $timestamps = false;
+
+    public function project(){
+        return $this->belongsTo('App\Models\Project');
+    }
 }

@@ -2,20 +2,27 @@
 
 namespace Tests\Feature;
 
+use App\Models\Project;
+use App\Models\Request;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Crypt;
 use Tests\TestCase;
+use App\Models\User;
 
 class ExampleTest extends TestCase
 {
+    use RefreshDatabase;
     /**
-     * A basic test example.
+     * A basic feature test example.
      *
      * @return void
      */
-    public function testBasicTest()
-    {
-        $response = $this->get('/');
+    public function testExample(){
 
-        $response->assertStatus(200);
+        $password = Crypt::encryptString('hola');
+        $password1 = Crypt::decryptString($password);
+        dump($password);
+
     }
 }
