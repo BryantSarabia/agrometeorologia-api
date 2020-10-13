@@ -14,10 +14,6 @@ class ListUserTest extends TestCase
     /* @test */
     public function test_can_fetch_single_user()
     {
-        $user = User::factory(User::class)->create();
 
-        $response = $this->getJson('api/v1/user/'.$user->getRouteKey());
-
-        $response->assertSee($user->name);
     }
 }

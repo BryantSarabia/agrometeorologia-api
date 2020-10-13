@@ -29,7 +29,7 @@ class ProjectFactory extends Factory
         return [
             'user_id' => User::factory(),
             'name' => $this->faker->sentence,
-            'api_key' => str::random(16),
+            'api_key' => str::random(40),
         ];
     }
 }

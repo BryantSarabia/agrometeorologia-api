@@ -40,7 +40,8 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            'api_key'
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+           // 'api_key'
         ],
     ];
 

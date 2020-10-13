@@ -20,5 +20,7 @@ class DatabaseSeeder extends Seeder
             ->count(2)
             ->has(Project::factory()->count(2)->has(Request::factory()->count(2)))
             ->create();
+
+            User::factory()->create(['email' => 'prova@prova.it']);
     }
 }
