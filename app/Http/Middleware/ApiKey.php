@@ -5,11 +5,13 @@ namespace App\Http\Middleware;
 use App\Models\Project;
 use Closure;
 use Illuminate\Http\Request;
+use App\Traits\ResponsesJSON;
 use Illuminate\Support\Facades\Crypt;
 
 
 class ApiKey
 {
+    use ResponsesJSON;
     /**
      * Handle an incoming request.
      *
@@ -24,15 +26,7 @@ class ApiKey
         $project = Project::where('api_key',$token)->first();
 
         if(!$project){
-            return response()->json([
-                'errors' => [
-                    [
-                        'status' => 401,
-                        'title' => 'Unauthorized',
-                        'detail' => 'Incorrect API Key, please try again.'
-                    ]
-                ],
-            ],401);
+            return $this->ResponseError(401,'Unauthorized','Incorrect API Key, please try again');
         }
 
         return $next($request);

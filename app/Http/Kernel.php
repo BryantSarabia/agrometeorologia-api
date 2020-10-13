@@ -4,6 +4,7 @@ namespace App\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
+
 class Kernel extends HttpKernel
 {
     /**
@@ -41,7 +42,8 @@ class Kernel extends HttpKernel
 
         'api' => [
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            'api_key'
+            // 'api_key',
+            // 'headers',
         ],
     ];
 
@@ -63,5 +65,6 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'api_key' => \App\Http\Middleware\ApiKey::class,
+        'headers' =>  \App\Http\Middleware\headersMiddleware::class,
     ];
 }

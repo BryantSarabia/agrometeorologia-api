@@ -15,3 +15,7 @@ Route::get('projects/{project}/requests','RequestController@requests')->name('ap
 
 Route::get('requests','RequestController@index')->name('api.v1.requests.index');
 Route::get('requests/{request}','RequestController@show')->name('api.v1.requests.show');
+
+/* API */
+
+Route::get('stations','StationController@index')->name('api.v1.stations.index');
