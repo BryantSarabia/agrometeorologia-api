@@ -25,7 +25,13 @@ class ApiKey
 
         if(!$project){
             return response()->json([
-                'message' => 'Unauthorized',
+                'errors' => [
+                    [
+                        'status' => 401,
+                        'title' => 'Unauthorized',
+                        'detail' => 'Incorrect API Key, please try again.'
+                    ]
+                ],
             ],401);
         }
 
