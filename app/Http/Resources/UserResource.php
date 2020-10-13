@@ -26,7 +26,7 @@ class UserResource extends JsonResource
                 'self' => route('api.v1.users.show', $this->resource)
             ],
             'relationships' => [
-                ProjectResource::collection($this->whenLoaded('projects'))
+                'projects' => ProjectResource::collection($this->whenLoaded('projects'))
             ]
         ];
     }
