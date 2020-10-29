@@ -12,6 +12,6 @@ trait UtilityMethods{
     }
 
     public function validateID($id){
-        return preg_match('/[^1-9][0-9]*$/',$id);
+        return preg_match('/[^0-9]/',$id);
     }
 }
