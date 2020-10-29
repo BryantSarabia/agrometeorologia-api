@@ -3,10 +3,10 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use App\Traits\ResponsesJSON;
 use Illuminate\Http\Request;
+use App\Traits\ResponsesJSON;
 
-class headersMiddleware
+class AcceptMiddleware
 {
     use ResponsesJSON;
     /**
@@ -19,15 +19,10 @@ class headersMiddleware
     public function handle(Request $request, Closure $next)
     {
 
-        $content_type = $request->header('Content-Type');
-        if($content_type !== 'application/vnd.api+json'){
-           return $this->ResponseError(415,'Unsupported Media Type');
+        $accept = $request->header('Accept');
+        if($accept !== 'application/json'){
+            return $this->ResponseError(406,'Not Acceptable','Be sure to set the header "Accept" to "application/json"');
         }
 
-        $accept = $request->header('Accept');
-        if($accept !== 'application/vnd.api+json'){
-           return $this->ResponseError(406,'Not Acceptable');
-        }
-        return $next($request);
     }
 }

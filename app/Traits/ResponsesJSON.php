@@ -5,15 +5,10 @@ trait ResponsesJSON
 {
     public function ResponseError($status, $title, $detail = ''){
         return response()->json([
-            'errors' => [
-                [
-                    'status' => $status,
-                    'title' => $title,
-                    'detail' => $detail
-
-                ]
-            ],
-        ],$status,['Content-Type' => 'application/vnd.api+json']);
+            "code"=> $status,
+            "title" => $title,
+            "details" => $detail
+        ],$status,['Content-Type' => 'application/json']);
     }
 
     /* Fare metodo per ritornare i dati */
