@@ -30,3 +30,11 @@ Route::get('indicators','IndicatorController@getIndicators')->name('api.v1.indic
 Route::get('indicators/{id}','IndicatorController@getIndicator')->name('api.v1.indicators.getIndicator');
 Route::get('stations/indicators/{id}','IndicatorController@getIndicatorValues')->name('api.v1.indicators.getIndicatorValues');
 Route::get('stations/{station_id}/indicators/{indicator_id}','IndicatorController@getIndicatorValue')->name('api.v1.indicators.getIndicatorValue');
+
+/******** Models Tag *********/
+Route::get('models','ModelController@getModels')->name('api.v1.models.getModels');
+Route::get('stations/{station_id}/models/{model_name}','ModelController@runModel')->name('api.v1.models.runModel');
+
+/********** Pests Tag ***********/
+Route::post('pests/reports','PestController@report')->name('api.v1.pests.report');
+Route::get('pests/reports','PestController@getReports')->name('api.v1.pests.getReports');

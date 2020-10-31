@@ -51,7 +51,7 @@ class IndicatorController extends Controller
             $this->to = $request->query('to');
         }
 
-        // Controllo che
+        // Controllo che la data iniziale non sia maggiore che la data finale
         if ($this->from > $this->to) {
             return $this->ResponseError(400, 'Bad request', "parameter from cannot be bigger than parameter to");
         }

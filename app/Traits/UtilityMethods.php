@@ -14,4 +14,8 @@ trait UtilityMethods{
     public function validateID($id){
         return preg_match('/[^0-9]/',$id);
     }
+
+    public function validateCoordinate($coordinate){
+        return filter_var($coordinate, FILTER_VALIDATE_FLOAT);
+    }
 }
