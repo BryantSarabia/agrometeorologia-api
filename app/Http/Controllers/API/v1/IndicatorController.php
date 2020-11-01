@@ -3,39 +3,37 @@
 namespace App\Http\Controllers\API\v1;
 
 use App\Http\Controllers\Controller;
-use App\Traits\AgroAmbiente;
+use App\Models\Agroambiente;
 use App\Traits\ResponsesJSON;
 use App\Traits\UtilityMethods;
 use Illuminate\Http\Request;
 
 class IndicatorController extends Controller
 {
-    use AgroAmbiente, UtilityMethods, ResponsesJSON;
+    use UtilityMethods, ResponsesJSON;
 
-    private $from, $to;
-
-    public function __construct()
-    {
-        $this->to = date('Y-m-d');
-        $this->from = date('Y-m-d', strtotime($this->to . ' - 1 month'));
-    }
 
     public function getIndicators()
     {
-        return $this->agroAmbienteIndicators();
+        $agroambiente = new Agroambiente();
+        return $agroambiente->indicators();
     }
 
-    public function getIndicator($id){
+    public function getIndicator($id)
+    {
 
-        if($this->validateID($id)){
+        if ($this->validateID($id)) {
             return $this->ResponseError(400, 'Bad Request', 'Invalid ID');
         }
 
-        return $this->agroAmbienteIndicator($id);
+        $agroambiente = new Agroambiente();
+        return $agroambiente->indicator($id);
     }
 
     public function getIndicatorValues(Request $request, $id)
     {
+
+        $agroambiente = new Agroambiente();
 
         if ($this->validateID($id)) {
             return $this->ResponseError(400, 'Bad request', 'Invalid ID');
@@ -43,25 +41,28 @@ class IndicatorController extends Controller
 
         // Controllo se nella richiesta c'è il parametro "from"
         if ($this->validateDate($request->query('from'))) {
-            $this->from = $request->query('from');
+            $agroambiente->setFrom($request->query('from'));
         }
 
         // Controllo se nella richiesta c'è il parametro "to"
         if ($this->validateDate($request->query('to'))) {
-            $this->to = $request->query('to');
+            $agroambiente->setTo($request->query('to'));
         }
 
         // Controllo che la data iniziale non sia maggiore che la data finale
-        if ($this->from > $this->to) {
+        if ($agroambiente->getFrom() > $agroambiente->getTo()) {
             return $this->ResponseError(400, 'Bad request', "parameter from cannot be bigger than parameter to");
         }
 
-        return $this->agroAmbienteIndicatorValues($id);
+
+        return $agroambiente->indicatorValues($id);
 
     }
 
     public function getIndicatorValue(Request $request, $station_id, $indicator_id)
     {
+        $agroambiente = new Agroambiente();
+
         if ($this->validateID($station_id)) {
             return $this->ResponseError(400, 'Bad request', 'Invalid station ID');
         }
@@ -70,21 +71,22 @@ class IndicatorController extends Controller
             return $this->ResponseError(400, 'Bad request', 'Invalid indicator ID');
         }
 
+
         // Controllo se nella richiesta c'è il parametro "from"
         if ($this->validateDate($request->query('from'))) {
-            $this->from = $request->query('from');
+            $agroambiente->setFrom($request->query('from'));
         }
 
         // Controllo se nella richiesta c'è il parametro "to"
         if ($this->validateDate($request->query('to'))) {
-            $this->to = $request->query('to');
+            $agroambiente->setTo($request->query('to'));
         }
 
-        // Controllo che
-        if ($this->from > $this->to) {
+        // Controllo che la data iniziale non sia maggiore che la data finale
+        if ($agroambiente->getFrom() > $agroambiente->getTo()) {
             return $this->ResponseError(400, 'Bad request', "parameter from cannot be bigger than parameter to");
         }
 
-        return $this->agroAmbienteIndicatorValue($station_id, $indicator_id);
+        return $agroambiente->indicatorValue($station_id, $indicator_id);
     }
 }

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\API\v1;
 
 use App\Http\Controllers\Controller;
-use App\Traits\AgroAmbiente;
+use App\Models\Agroambiente;
 use App\Traits\UtilityMethods;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -12,17 +12,18 @@ use Illuminate\Support\Str;
 
 class StationController extends Controller
 {
-    use ResponsesJSON, AgroAmbiente, UtilityMethods;
+    use ResponsesJSON, UtilityMethods;
 
     private $source;
 
     public function __construct()
     {
-        $this->source = 'agroAmbiente';
+        $this->source = 'agroambiente';
     }
 
     public function getStations(Request $request)
     {
+
         $province = null;
 
         // Controllo se c'è il parametro province
@@ -38,13 +39,14 @@ class StationController extends Controller
 
         // Controllo se c'è il parametro source (sorgente) di default è agroAmbiente
         if ($request->query('source') && is_string($request->query('source'))) {
-            $this->source = $request->query('source');
+            $this->source = strtolower($request->query('source'));
         }
 
         // Restituisco i dati in base alla sorgente
-        if ($this->source === 'agroAmbiente') {
+        if ($this->source === 'agroambiente') {
 
-            return $this->agroAmbienteStations($request, $province);
+            $agroambiente = new Agroambiente();
+            return $agroambiente->stations($request, $province);
 
         } elseif ($this->source === 'other_source') {
             //
@@ -60,7 +62,8 @@ class StationController extends Controller
             return $this->ResponseError(400, 'Bad request', 'Invalid ID');
         }
 
-        return $this->agroAmbienteStation($id);
+        $agroambiente = new Agroambiente();
+        return $agroambiente->station($id);
 
     }
 

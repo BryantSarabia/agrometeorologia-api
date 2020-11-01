@@ -4,14 +4,13 @@ namespace App\Http\Controllers\API\v1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Report;
-use App\Traits\AgroAmbiente;
 use App\Traits\ResponsesJSON;
 use App\Traits\UtilityMethods;
 use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
-    use AgroAmbiente, UtilityMethods, ResponsesJSON;
+    use UtilityMethods, ResponsesJSON;
 
     private $from, $to;
 
@@ -82,8 +81,8 @@ class ReportController extends Controller
             'user_id' => $request->user_id,
             'name' => $request->name,
             'message' => $request->message,
-            'lat' => $request->coordinates['lat'],
-            'lon' => $request->coordinates['lon']
+            'lat' => (double) $request->coordinates['lat'],
+            'lon' => (double) $request->coordinates['lon']
             ]);
 
 

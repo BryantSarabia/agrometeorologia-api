@@ -3,27 +3,22 @@
 namespace App\Http\Controllers\API\v1;
 
 use App\Http\Controllers\Controller;
-use App\Traits\AgroAmbiente;
+use App\Models\Agroambiente;
 use App\Traits\ResponsesJSON;
 use App\Traits\UtilityMethods;
 use Illuminate\Http\Request;
 
 class ModelController extends Controller
 {
-    use AgroAmbiente, UtilityMethods, ResponsesJSON;
-    private $from, $to;
-
-    public function __construct()
-    {
-        $this->to = date('Y-m-d');
-        $this->from = date('Y-m-d', strtotime($this->to . ' - 1 month'));
-    }
+    use UtilityMethods, ResponsesJSON;
 
     public function getModels(){
-        return $this->agroAmbienteModels();
+        $agroambiente = new Agroambiente();
+        return $agroambiente->models();
     }
 
     public function runModel(Request $request, $station_id, $model_name){
+
 
         if ($this->validateID($station_id)) {
             return $this->ResponseError(400, 'Bad request', 'Invalid ID');
@@ -33,12 +28,13 @@ class ModelController extends Controller
             return $this->ResponseError(400, 'Bad request', 'Invalid model name');
         }
 
+        $agroambiente = new Agroambiente();
+
         // Controllo se nella richiesta c'è il parametro "from"
         if ($this->validateDate($request->query('from'))) {
-            $this->from = $request->query('from');
+            $agroambiente->setFrom($request->query('from'));
         }
 
-
-        return $this->agroAmbienteRunModel($station_id, $model_name);
+        return $agroambiente->runModel($station_id, $model_name);
     }
 }

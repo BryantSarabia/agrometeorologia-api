@@ -1,0 +1,881 @@
+openapi: 3.0.1
+info:
+  title: AgroAPI
+  version: 1.0.0
+  description: API per i servizi agricoli della Regione Abruzzo
+  contact:
+    email: bryantsarabia@gmail.com
+    name: Bryant Sarabia
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+  - url: "http://localhost:8000/api/v1"
+    variables: {}
+    description: Main server
+tags:
+  - name: meteo
+    description: Dati meteorologici
+  - name: indicatori
+    description: Indicatori agricoli
+  - name: modelli
+    description: Modelli agricoli
+  - name: infestanti
+    description: Informazioni sugli infestanti
+  - name: stazioni
+    description: Stazioni meteorologiche
+paths:
+  /stations:
+    parameters:
+      - in: query
+        name: province
+        description: Una delle province della regione Abruzzo
+        schema:
+          type: string
+        required: false
+      - in: query
+        name: source
+        description: Sorgente dati
+        schema:
+          type: string
+        required: false
+    get:
+      summary: Lista di stazioni meteorologiche
+      tags:
+        - stazioni
+      description: ''
+      operationId: getStations
+      responses:
+        '200':
+          description: Succesful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Station'
+              example:
+                - data:
+                  - id: '1'
+                    name: AVEZZANO
+                    code: Avezza
+                    province: AQ
+                    disabled: 0
+                    coordinates:
+                      lat: '42.02531667'
+                      lon: '13.45065'
+                  - id: '2'
+                    name: SULMONA BUGNARA
+                    code: Sulmon
+                    province: AQ
+                    disabled: 0
+                    coordinates:
+                      lat: '42.04161111'
+                      lon: '13.88379167'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '406':
+          $ref: '#/components/responses/406NotAcceptable'
+        '500':
+          $ref: '#/components/responses/500Error'
+  /stations/{station_id}:
+    parameters:
+      - $ref: '#/components/parameters/StationId'
+    get:
+      summary: Stazione meteorologica
+      tags:
+        - stazioni
+      description: ''
+      operationId: getStation
+      responses:
+        '200':
+          description: Succesful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Station'
+              example:
+               data:
+                id: '1'
+                name: AVEZZANO
+                code: Avezza
+                province: AQ
+                disabled: 0
+                coordinates:
+                  lat: '42.02531667'
+                  lon: '13.45065'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '406':
+          $ref: '#/components/responses/406NotAcceptable'
+        '500':
+          $ref: '#/components/responses/500Error'
+  '/stations/{station_id}/indicators/{indicator_id}':
+    parameters:
+      - $ref: '#/components/parameters/StationId'
+      - $ref: '#/components/parameters/IndicatorId'
+      - $ref: '#/components/parameters/From'
+      - $ref: '#/components/parameters/To'
+    get:
+      summary: Ritorna la stazione con il rispettivo valore dell'indicatore
+      tags:
+        - indicatori
+      description: ''
+      operationId: getIndicatorValue
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      station:
+                        $ref: '#/components/schemas/Station'
+                      indicator:
+                        $ref: '#/components/schemas/Indicator'
+              example:
+                data:
+                  station:
+                    id: 1
+                    name: AVEZZANO
+                    code: Avezza
+                    province: AQ
+                    disabled: 0
+                    coordinates:
+                      lat: '42.02531667'
+                      lon: '13.45065'
+                  indicator:
+                    id: 8
+                    name: Bilancio idrico-climatico (mm)
+                    ind_group: Bilancio idro-climatico
+                    value: 10
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '406':
+          $ref: '#/components/responses/406NotAcceptable'
+        '500':
+          $ref: '#/components/responses/500Error'
+  '/stations/indicators/{indicator_id}':
+    parameters:
+      - $ref: '#/components/parameters/IndicatorId'
+      - $ref: '#/components/parameters/From'
+      - $ref: '#/components/parameters/To'
+    get:
+      summary: Ritorna il valore dell'indicatore rivelato da tutte le stazioni
+      tags:
+        - indicatori
+      description: ''
+      operationId: getIndicatorValues
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/StationsIndicator'
+                example:
+                  data:
+                    - station:
+                        id: 1
+                        name: AVEZZANO
+                        code: Avezza
+                        province: AQ
+                        disabled: 0
+                        coordinates:
+                          lat: '42.02531667'
+                          lon: '13.45065'
+                      indicator:
+                        id: 8
+                        name: Bilancio idrico-climatico (mm)
+                        value: 10
+                    - station:
+                        id: 2
+                        name: SULMONA BUGNARA
+                        code: Sulmon
+                        province: AQ
+                        disabled: 0
+                        coordinates:
+                          lat: '42.04161111'
+                          lon: '13.88379167'
+                      indicator:
+                        id: 8
+                        name: Bilancio idrico-climatico (mm)
+                        value: 14
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '406':
+          $ref: '#/components/responses/406NotAcceptable'
+        '500':
+          $ref: '#/components/responses/500Error'
+  /indicators:
+    get:
+      summary: Lista di indicatori
+      tags:
+        - indicatori
+      description: ''
+      operationId: getIndicators
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Indicator'
+              example:
+                data:
+                  - id: '8'
+                    name: Bilancio idrico-climatico (mm)
+                    ind_group: Bilancio idro-climatico
+                  - id: '7'
+                    name: ET0 cumulata (mm)
+                    ind_group: Bilancio idro-climatico
+                  - id: '13'
+                    name: Giorni di pioggia > 10 mm
+                    ind_group: Pioggia
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '406':
+          $ref: '#/components/responses/406NotAcceptable'
+        '500':
+          $ref: '#/components/responses/500Error'
+  /indicators/{indicator_id}:
+    parameters:
+      - $ref: '#/components/parameters/IndicatorId'
+    get:
+      summary: Ritorna i dati dell'indicatore
+      tags:
+        - indicatori
+      description: ''
+      operationId: getIndicator
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Indicator'
+              example:
+                data:
+                  id: 8
+                  name: 'Bilancio idrico-climatico (mm)'
+                  ind_group: 'Bilancio Idrico'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '406':
+          $ref: '#/components/responses/406NotAcceptable'
+        '500':
+          $ref: '#/components/responses/500Error'
+  /models:
+    get:
+      summary: Lista di modelli
+      tags:
+        - modelli
+      description: ''
+      operationId: getModels
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Model'
+              example:
+                data:
+                  - name: olive_pheno
+                    description: Fenologia dell'olivo
+                  - name: olive_bactrocera_multi
+                    description: Generazioni Teoriche della Mosca
+                  - name: olive_bactrocera_mortality
+                    description: Mortalità della Mosca
+                  - name: grape_plasmopara
+                    description: peronospora della vite
+                  - name: grape_lobesia
+                    description: Lobesia della Vite
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '406':
+          $ref: '#/components/responses/406NotAcceptable'
+        '500':
+          $ref: '#/components/responses/500Error'
+  '/stations/{station_id}/models/{name}':
+    parameters:
+      - $ref: '#/components/parameters/StationId'
+      - $ref: '#/components/parameters/From'
+      - name: name
+        in: path
+        required: true
+        description: Nome del modello
+        schema:
+          type: string
+          example: olive_pheno
+    get:
+      summary: Restituisce i dati del modello
+      tags:
+        - modelli
+      description: ''
+      operationId: runModel
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ModelData'
+              example:
+                data:
+                  - tavg: 6.15
+                    nhh_cum: 18.331980966667
+                    nhh: 4.6875556541667
+                    datetime: '2020-01-14'
+                    nhh_stage: Riposo germogliamento
+                    nhh_bbch: 0
+                    nhh_perc: 0.019215912962963
+                    nhh_bbch_next: 52
+                    nhh_stage_next: Apertura gemme a fiore
+                    day_degree: 2.61399390625
+                    stage: vegetative rest
+                  - tavg: 7.85
+                    nhh_cum: 24.882784525
+                    nhh: 6.5508035583333
+                    datetime: '2020-01-15'
+                    nhh_stage: Riposo germogliamento
+                    nhh_bbch: 0
+                    nhh_perc: 0.026082583359539
+                    nhh_bbch_next: 52
+                    nhh_stage_next: Apertura gemme a fiore
+                    day_degree: 3.9143956854167
+                    stage: vegetative rest
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '406':
+          $ref: '#/components/responses/406NotAcceptable'
+        '500':
+          $ref: '#/components/responses/500Error'
+  '/stations/{station_id}/weather':
+    parameters:
+      - $ref: '#/components/parameters/StationId'
+      - $ref: '#/components/parameters/From'
+      - $ref: '#/components/parameters/To'
+    get:
+      summary: >-
+        restituisce i dati meteo presi da quella stazione durante la data
+        specificata
+      tags:
+        - meteo
+      description: ''
+      operationId: getStationWeather
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Weather'
+              example:
+                data:
+                  - id_station : "1"
+                    datetime: '2020-10-10'
+                    tmin: 16.8
+                    tmax: 25
+                    tavg: 20.9
+                    rhmin: 72
+                    rhmax: 100
+                    rhavg: null
+                    psum: 8.4
+                    wmax: 7.2
+                    wavg: 0.7
+                    wdir: null
+                    ravg: null
+                    rsum: null
+                  - id_station: "1"
+                    datetime: '2020-10-11'
+                    tmin: 15.8
+                    tmax: 24
+                    tavg: 23.9
+                    rhmin: 70
+                    rhmax: 90
+                    rhavg: null
+                    psum: 5.4
+                    wmax: 6.2
+                    wavg: 0.5
+                    wdir: null
+                    ravg: null
+                    rsum: null
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '406':
+          $ref: '#/components/responses/406NotAcceptable'
+        '500':
+          $ref: '#/components/responses/500Error'
+  /pests/reports:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/From'
+        - $ref: '#/components/parameters/To'
+        - name: lat
+          in: query
+          required: true
+          description: latitudine
+          schema:
+            type: number
+            format: double
+            example: 42.02531667
+        - name: lon
+          in: query
+          required: true
+          description: longitudine
+          schema:
+            type: number
+            format: double
+            example: 13.45065
+        - name: radius
+          in: query
+          required: true
+          description: raggio in km
+          schema:
+            type: integer
+            example: 50
+      summary: >-
+        Data una posizione e un raggio ritorna gli infestanti che interessano
+        quella zona. Se non sono presenti i parametri 'from' e 'to' ritorna
+        tutti gli infestanti.
+      tags:
+        - infestanti
+      description: ''
+      operationId: getPestsReports
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Pest'
+              example:
+                data:
+                  - user_id: "21"
+                    report_id: "1"
+                    name: 'Hydrocotyle'
+                    message: 'Vi consiglio di utilizzare X prodotto'
+                    distance: 51.0121
+                    coordinates:
+                      lat: 43.1231212
+                      lon: 10.1231242
+                    created_at: '2020-10-10'
+                  - user_id: "41"
+                    report_id: "2"
+                    name: 'Plantago'
+                    message: 'Proteggete le vostre colture o saranno in pericolo'
+                    distance: 51.0121
+                    coordinates:
+                      lat: 43.1231212
+                      lon: 10.1231242
+                    created_at: '2020-10-14'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '406':
+          $ref: '#/components/responses/406NotAcceptable'
+        '500':
+          $ref: '#/components/responses/500Error'
+    post:
+      summary: segnalazione di un infestante
+      tags:
+        - infestanti
+      description: ''
+      operationId: pestReport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                 $ref: '#/components/schemas/Pest'
+            example:
+              user_id: "21"
+              name: 'Hydrocotyle'
+              message: 'Consiglio di eliminare il prima possibile questo infestante'
+              coordinates:
+                lat: 41.198231
+                lon: 13.93291
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pest'
+              example:
+                user_id: "21"
+                report_id: "1"
+                name: Hydrocotyle
+                message: 'Consiglio di eliminare il prima possibile questo infestante'
+                coordinates:
+                  lat: 41.198231
+                  lon: 13.93291
+                created_at: '2020-10-10'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '406':
+          $ref: '#/components/responses/406NotAcceptable'
+        '415':
+          $ref: '#/components/responses/415MediaType'
+        '500':
+          $ref: '#/components/responses/500Error'
+security:
+  - bearerAuth: []
+  - ApiKey: []
+components:
+  schemas:
+    Station:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        code:
+          type: string
+        province:
+          type: string
+        disabled:
+          type: integer
+          minimum: 0
+          maximum: 1
+        coordinates:
+          $ref: '#/components/schemas/Coordinate'
+      example:
+        id: 1
+        name: AVEZZANO
+        code: Avezza
+        province: AQ
+        disabled: 0
+        coordinates:
+          lat: '42.02531667'
+          lon: '13.45065'
+    Coordinate:
+      type: object
+      properties:
+        lat:
+          type: number
+          format: double
+        lon:
+          type: number
+          format: double
+      example:
+        lat: '42.02531667'
+        lon: '13.45065'
+    StationsIndicator:
+      type: object
+      properties:
+        station:
+          $ref: '#/components/schemas/Station'
+        indicator:
+          $ref: '#/components/schemas/Indicator'
+    Indicator:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        ind_group:
+          type: string
+        value:
+          type: number
+          format: double
+          nullable: true
+    Model:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+    ModelData:
+      type: object
+      properties:
+        datetime:
+          type: string
+          format: date-time
+        tavg:
+          type: number
+          format: double
+        nhh_cum:
+          type: number
+          format: double
+        nhh:
+          type: number
+          format: double
+        nhh_stage:
+          type: string
+        nhh_bbch:
+          type: number
+          format: double
+        nhh_perc:
+          type: number
+          format: double
+        nhh_bbch_next:
+          type: integer
+        nhh_stage_next:
+          type: string
+        day_degree:
+          type: number
+          format: double
+        stage:
+          type: string
+    Weather:
+      type: object
+      properties:
+        id_station:
+          type: string
+        datetime:
+          type: string
+          format: date-time
+        tmin:
+          type: number
+          format: double
+        tmax:
+          type: number
+          format: double
+        tavg:
+          type: number
+          format: double
+        rhmin:
+          type: integer
+        rhmax:
+          type: integer
+        rhavg:
+          type: integer
+          nullable: true
+        psum:
+          type: number
+          format: double
+        wmax:
+          type: number
+          format: double
+        wdir:
+          type: string
+          nullable: true
+        ravg:
+          type: number
+          format: double
+          nullable: true
+        rsum:
+          type: number
+          format: double
+          nullable: true
+    Pest:
+      type: object
+      properties:
+        user_id:
+          type: string
+          nullable: true
+        report_id:
+          type: string
+        name:
+          type: string
+        message:
+          type: string
+        distance:
+          type: number
+          format: double
+          nullable: true
+        coordinates:
+          $ref: '#/components/schemas/Coordinate'
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+        title:
+          type: string
+        details:
+          type: string
+  parameters:
+    StationId:
+      name: station_id
+      in: path
+      required: true
+      description: ID della stazione
+      schema:
+        type: string
+        example: '1'
+    IndicatorId:
+      name: indicator_id
+      in: path
+      required: true
+      description: ID dell'indicatore
+      schema:
+        type: string
+        example: '8'
+    From:
+      name: from
+      in: query
+      required: false
+      description: Data d'inizio
+      schema:
+        type: string
+        format: date-time
+        default: 'Last 30 days'
+        example: '2020-10-10'
+    To:
+      name: to
+      in: query
+      required: false
+      description: Data d'inizio
+      schema:
+        type: string
+        format: date-time
+        default: 'Current day'
+        example: '2020-10-15'
+  responses:
+    500Error:
+      description: Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 500
+            title: Server error
+            details: ''
+    404NotFound:
+      description: The resourced was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 404
+            title: Resource not found
+            details: ''
+    400BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 400
+            title: Bad request
+            details: ''
+    401Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 401
+            title: Unauthorized
+            details: 'Incorrect API Key, please try again'
+    406NotAcceptable:
+      description: Missing Accept header
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 406
+            title: Not acceptable
+            details: Be sure to set the header "Accept" to "application/json"
+    415MediaType:
+      description: Missing Content-Type header
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 415
+            title: Unsupported Media Type
+            details: Be sure to set the header "Content-Type" to "application/json"
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+    ApiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
