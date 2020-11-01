@@ -273,6 +273,7 @@ class ReportTest extends TestCase
     }
 
     public function test_can_get_reports(){
+        $this->withoutExceptionHandling();
         $this->withoutMiddleware();
         $user = User::factory()->create();
         $date = new DateTime();
