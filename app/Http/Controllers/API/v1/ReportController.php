@@ -53,8 +53,17 @@ class ReportController extends Controller
         }
 
         // LOGICA DELLE DISTANZE
+
         $lat = $request->query('lat');
+        if(abs($lat) > 90){
+            return $this->ResponseError(400, 'Bad request', 'Parameter lat must be a number between -90 and 90');
+        }
+
         $lon = $request->query('lon');
+        if(abs($lon) > 180){
+            return $this->ResponseError(400, 'Bad request', 'Parameter lon must be a number between -180 and 180');
+        }
+
         $radius = $request->query('radius');
         $reports = Report::findNearestReports($lat,$lon,$radius,$this->from,$this->to);
 
@@ -77,12 +86,23 @@ class ReportController extends Controller
         if(!$request->message || !is_string($request->message)){
             return $this->ResponseError(400, 'Bad request', 'Message must be a string');
         }
+
+        $lat = $request->coordinates['lat'];
+        if(abs($lat) > 90){
+            return $this->ResponseError(400, 'Bad request', 'Parameter lat must be a number between -90 and 90');
+        }
+
+        $lon = $request->coordinates['lon'];
+        if(abs($lon) > 180){
+            return $this->ResponseError(400, 'Bad request', 'Parameter lon must be a number between -180 and 180');
+        }
+
         $report = Report::create([
             'user_id' => $request->user_id,
             'name' => $request->name,
             'message' => $request->message,
-            'lat' => (double) $request->coordinates['lat'],
-            'lon' => (double) $request->coordinates['lon']
+            'lat' => $lat,
+            'lon' => $lon
             ]);
 
 

@@ -48,6 +48,102 @@ class ReportTest extends TestCase
             ->assertHeader('Content-Type', 'application/json');
     }
 
+    public function test_cannot_report_with_latitude_bigger_than_90(){
+        $this->withoutMiddleware();
+        $user = User::factory()->create();
+        $body = [
+            'user_id' => $user->id,
+            'name' => 'Hydrocotyle',
+            'message' => 'Consiglio di eliminare il prima possibile questo infestante',
+            'coordinates' => [
+                'lat' => 91.2145,
+                'lon' => 42.1121
+            ]
+        ];
+        $response = $this->postJson('api/v1/pests/reports',$body);
+
+        $response
+            ->assertStatus(400)
+            ->assertExactJson([
+                'code' => 400,
+                'title' => "Bad request",
+                'details' => "Parameter lat must be a number between -90 and 90"
+            ])
+            ->assertHeader('Content-Type', 'application/json');
+    }
+
+    public function test_cannot_report_with_latitude_bigger_than_minus_90(){
+        $this->withoutMiddleware();
+        $user = User::factory()->create();
+        $body = [
+            'user_id' => $user->id,
+            'name' => 'Hydrocotyle',
+            'message' => 'Consiglio di eliminare il prima possibile questo infestante',
+            'coordinates' => [
+                'lat' => -91.2145,
+                'lon' => 42.1121
+            ]
+        ];
+        $response = $this->postJson('api/v1/pests/reports',$body);
+
+        $response
+            ->assertStatus(400)
+            ->assertExactJson([
+                'code' => 400,
+                'title' => "Bad request",
+                'details' => "Parameter lat must be a number between -90 and 90"
+            ])
+            ->assertHeader('Content-Type', 'application/json');
+    }
+
+    public function test_cannot_report_with_longitude_bigger_than_180(){
+        $this->withoutMiddleware();
+        $user = User::factory()->create();
+        $body = [
+            'user_id' => $user->id,
+            'name' => 'Hydrocotyle',
+            'message' => 'Consiglio di eliminare il prima possibile questo infestante',
+            'coordinates' => [
+                'lat' => 43.2145,
+                'lon' => 180.248
+            ]
+        ];
+        $response = $this->postJson('api/v1/pests/reports',$body);
+
+        $response
+            ->assertStatus(400)
+            ->assertExactJson([
+                'code' => 400,
+                'title' => "Bad request",
+                'details' => "Parameter lon must be a number between -180 and 180"
+            ])
+            ->assertHeader('Content-Type', 'application/json');
+    }
+
+    public function test_cannot_report_with_longitude_bigger_than_minus_180(){
+        $this->withoutMiddleware();
+        $user = User::factory()->create();
+        $body = [
+            'user_id' => $user->id,
+            'name' => 'Hydrocotyle',
+            'message' => 'Consiglio di eliminare il prima possibile questo infestante',
+            'coordinates' => [
+                'lat' => 43.2145,
+                'lon' => -180.248
+            ]
+        ];
+        $response = $this->postJson('api/v1/pests/reports',$body);
+
+        $response
+            ->assertStatus(400)
+            ->assertExactJson([
+                'code' => 400,
+                'title' => "Bad request",
+                'details' => "Parameter lon must be a number between -180 and 180"
+            ])
+            ->assertHeader('Content-Type', 'application/json');
+    }
+
     public function test_cannot_report_with_missing_pest_name(){
         $this->withoutMiddleware();
         $user = User::factory()->create();

@@ -44,6 +44,7 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             // 'api_key',
             // 'accept',
+           // 'content_type'
         ],
     ];
 
