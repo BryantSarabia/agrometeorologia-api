@@ -33,7 +33,7 @@ class ReportController extends Controller
             return $this->ResponseError(400, 'Bad request', "Parameter lon must be a float number");
         }
 
-        // Controllo che il parametro "radius" sia un int
+        // Controllo che il parametro "radius" sia un int (Il raggio deve essere in KM)
         if($this->validateID($request->query('radius')) || !$request->query('radius')){
             return $this->ResponseError(400, 'Bad request', "Parameter radius must be number");
         }
