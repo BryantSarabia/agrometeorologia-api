@@ -9,7 +9,7 @@ use App\Traits\ResponsesJSON;
 use App\Traits\UtilityMethods;
 use Illuminate\Http\Request;
 
-class PestController extends Controller
+class ReportController extends Controller
 {
     use AgroAmbiente, UtilityMethods, ResponsesJSON;
 

@@ -36,5 +36,5 @@ Route::get('models','ModelController@getModels')->name('api.v1.models.getModels'
 Route::get('stations/{station_id}/models/{model_name}','ModelController@runModel')->name('api.v1.models.runModel');
 
 /********** Pests Tag ***********/
-Route::post('pests/reports','PestController@report')->name('api.v1.pests.report');
-Route::get('pests/reports','PestController@getReports')->name('api.v1.pests.getReports');
+Route::post('pests/reports','ReportController@report')->name('api.v1.pests.report');
+Route::get('pests/reports','ReportController@getReports')->name('api.v1.pests.getReports');
