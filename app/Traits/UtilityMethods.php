@@ -18,4 +18,8 @@ trait UtilityMethods{
     public function validateCoordinate($coordinate){
         return filter_var($coordinate, FILTER_VALIDATE_FLOAT);
     }
+
+    public function validateString($string){
+       return !preg_match('/[^A-Za-z]+/',$string);
+    }
 }

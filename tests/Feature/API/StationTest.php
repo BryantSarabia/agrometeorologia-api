@@ -33,13 +33,18 @@ class StationTest extends TestCase
             ->assertHeader('Content-Type', 'application/json');
     }
 
+
     public function test_cannot_get_all_stations_filtered_by_invalid_province()
     {
         $this->withoutMiddleware();
-        $response = $this->get('api/v1/stations?province=1212231');
+        $response = $this->get('api/v1/stations?province=aq1231');
         $response
-            ->assertJsonMissing(['data'], true)
-            ->assertStatus(200)
+            ->assertStatus(400)
+            ->assertExactJson([
+                'code' => 400,
+                'title' => 'Bad request',
+                'details' => 'Parameter province must be string'
+            ])
             ->assertHeader('Content-Type', 'application/json');
     }
 
