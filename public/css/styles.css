@@ -1,3 +1,9 @@
 .project{
     margin-top: 1.2em;
 }
+
+.card-img-top {
+    max-height: 250px;
+    min-height: 150px;
+    object-fit: cover;
+}
