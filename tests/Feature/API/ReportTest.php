@@ -2,11 +2,13 @@
 
 namespace Tests\Feature\API;
 
+use App\Models\Project;
 use App\Models\Report;
 use App\Models\User;
 use DateTime;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class ReportTest extends TestCase
@@ -17,12 +19,11 @@ class ReportTest extends TestCase
      *
      * @return void
      */
-    public function test_can_report()
+    public function test_can_report_when_logged_in()
     {
         $this->withoutMiddleware();
         $user = User::factory()->create();
         $body = [
-            'user_id' => $user->id,
             'name' => 'Hydrocotyle',
             'message' => 'Consiglio di eliminare il prima possibile questo infestante',
             'coordinates' => [
@@ -30,7 +31,7 @@ class ReportTest extends TestCase
                 'lon' => 42.1121
             ]
         ];
-        $response = $this->postJson('api/v1/pests/reports',$body);
+        $response = $this->actingAs($user)->postJson('api/v1/pests/reports',$body);
 
         $response
             ->assertStatus(201)
@@ -46,6 +47,58 @@ class ReportTest extends TestCase
                 'created_at' => date('Y-m-d')
             ])
             ->assertHeader('Content-Type', 'application/json');
+    }
+
+    public function test_can_report_with_api_key()
+    {
+        $this->withoutMiddleware();
+        $token = str::random(40);
+        $user = User::factory()->hasProjects(1,['api_key' => $token])->create();
+        $body = [
+            'name' => 'Hydrocotyle',
+            'message' => 'Consiglio di eliminare il prima possibile questo infestante',
+            'coordinates' => [
+                'lat' => 41.12,
+                'lon' => 42.1121
+            ]
+        ];
+        $response = $this->withHeader('Authorization', 'Bearer ' . $token )->postJson('api/v1/pests/reports',$body);
+
+        $response
+            ->assertStatus(201)
+            ->assertExactJson([
+                'id' => "1",
+                'user_id' => (string) $user->id,
+                'name' => 'Hydrocotyle',
+                'message' => 'Consiglio di eliminare il prima possibile questo infestante',
+                'coordinates' => [
+                    'lat' => 41.12,
+                    'lon' => 42.1121
+                ],
+                'created_at' => date('Y-m-d')
+            ])
+            ->assertHeader('Content-Type', 'application/json');
+    }
+
+    public function test_cannot_report_when_not_logged_in(){
+        $this->withoutMiddleware();
+        $body = [
+            'name' => 'Hydrocotyle',
+            'message' => 'Consiglio di eliminare il prima possibile questo infestante',
+            'coordinates' => [
+                'lat' => 41.12,
+                'lon' => 42.1121
+            ]
+        ];
+        $response = $this->postJson('api/v1/pests/reports',$body);
+        $response
+            ->assertStatus(401)
+            ->assertExactJson([
+                'code' => 401,
+                'title' => 'Unauthorized',
+                'details' => 'You must be logged in or have an API Key'
+            ])
+            ->assertHeader('Content-Type','application/json');
     }
 
     public function test_cannot_report_with_latitude_bigger_than_90(){
@@ -273,7 +326,6 @@ class ReportTest extends TestCase
     }
 
     public function test_can_get_reports(){
-        $this->withoutExceptionHandling();
         $this->withoutMiddleware();
         $user = User::factory()->create();
         $date = new DateTime();

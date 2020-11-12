@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\API\v1;
 
 use App\Http\Controllers\Controller;
+use App\Models\Project;
 use App\Models\Report;
 use App\Traits\ResponsesJSON;
 use App\Traits\UtilityMethods;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ReportController extends Controller
 {
@@ -72,6 +74,11 @@ class ReportController extends Controller
 
     public function report(Request $request){
 
+
+        if(!Auth::user() && !$request->bearerToken()){
+            return $this->ResponseError(401,'Unauthorized','You must be logged in or have an API Key');
+        }
+
         if(!isset($request->coordinates['lat']) || !$this->validateCoordinate($request->coordinates['lat'])){
             return $this->ResponseError(400, 'Bad request', 'Parameter lat must be a float number');
         }
@@ -97,8 +104,11 @@ class ReportController extends Controller
             return $this->ResponseError(400, 'Bad request', 'Parameter lon must be a number between -180 and 180');
         }
 
+
+        $user_id = Auth::id() ? Auth::id() : (Project::where('api_key', $request->bearerToken())->first())->user->id;
+
         $report = Report::create([
-            'user_id' => $request->user_id,
+            'user_id' => $user_id,
             'name' => $request->name,
             'message' => $request->message,
             'lat' => $lat,
