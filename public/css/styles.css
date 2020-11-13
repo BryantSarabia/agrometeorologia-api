@@ -7,3 +7,27 @@
     min-height: 150px;
     object-fit: cover;
 }
+
+.input-group-icon {
+    position: relative;
+}
+
+.input-group-icon .icon {
+    position: absolute;
+    right: 20px;
+    top: 0;
+    line-height: 40px;
+    z-index: 3;
+}
+
+.input-group-icon .icon i{
+    color: green;
+}
+
+.use_key{
+    cursor: pointer;
+}
+
+.navbar {
+    min-height: 80px;
+}

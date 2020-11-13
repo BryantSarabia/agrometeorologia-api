@@ -17,10 +17,7 @@ Route::post('project/save','ProjectController@save')->name('project.save');
 Route::delete('project/{project}/delete','ProjectController@delete')->name('project.delete');
 Route::post('project/{project}/token','ProjectController@token')->name('project.token');
 
-Route::get('/report/create',function(){
-    return view('pages.create_report');
-})->name('report.create');
-
+Route::get('/report/create','ReportController@create')->name('report.create');
 
 
 

@@ -3,6 +3,24 @@
 
 var parent;
 var project_id;
+const url = "127.0.0.1:8000";
+var api_key;
+
+$(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+})
+
+const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer)
+        toast.addEventListener('mouseleave', Swal.resumeTimer)
+    }
+})
 
 /* ---------------- RIMUOVERE UN PROGETTO --------------*/
 
@@ -46,10 +64,13 @@ $('#deleteProject').on('submit', function (event) {
 var target;
 var generate;
 var button;
+var use;
 $(document).on('click', '.generate,.refresh', function (event) {
     button = $(this);
     target = $(this).parent().siblings('.key_field').find('input');
     project_id = $(this).data('id');
+    use = $(this).parent().siblings('.key_field').find('.use_key');
+    console.log('asd');
     generate = true; /* Boolean per sapere se sto generando un nuovo token */
     $('#confirmPasswordModal').modal('show');
 })
@@ -83,7 +104,7 @@ $('#confirmPassword').on('submit', function (event) {
                 button.text('Hide');
                 button.parent().after(
                     `<div class="col-2">
-                        <button class="btn btn-warning refresh" name="generate" type="button" data-id="${project_id}}">
+                        <button class="btn btn-warning refresh" name="generate" type="button" data-id="${project_id}">
                             Refresh
                         </button>
                     </div>
@@ -99,12 +120,11 @@ $('#confirmPassword').on('submit', function (event) {
                 sibling.removeClass('show_key').addClass('hide_key');
                 sibling.text('Hide');
             }
-
+            use.removeClass('d-none')
             password.val(''); /* Risetto la password del modal per sicurezza */
 
         },
         error: function (error) {
-            console.log(error);
             password.addClass('is-invalid');
             password.parent().append(
                 `
@@ -125,6 +145,7 @@ $(document).on('click', '.show_key', function (event) {
     button = $(this);
     target = $(this).parent().siblings('.key_field').find('input');
     project_id = $(this).data('id');
+    use = $(this).parent().siblings('.key_field').find('.use_key');
     generate = false; /* Boolean a falso per sapere che devo prendere il token di un progetto */
     $('#confirmPasswordModal').modal('show');
 })
@@ -134,6 +155,56 @@ $(document).on('click', '.hide_key', function (event) {
     target = $(this).parent().siblings('.key_field').find('input').val('');
     button.text('Show');
     button.removeClass('hide_key').addClass('show_key');
+    use = $(this).parent().siblings('.key_field').find('.use_key');
+    use.addClass('d-none')
     generate = false; /* Boolean a falso per sapere che devo prendere il token di un progetto */
 })
 
+$(document).on('click','.use_key', function(){
+    let token = $(this).parent().siblings().eq(0).val();
+
+    if(token.length > 0){
+        localStorage.setItem('api_key',token);
+        Toast.fire({
+            icon: 'success',
+            title: 'API Key assigned succesfully'
+        })
+    }
+})
+
+$(document).on('submit','#pest-report', function(event){
+    event.preventDefault();
+    let data = formSerialize($(this));
+    let coordinates = marker.getPosition().toJSON();
+    data.coordinates = {
+        lat: coordinates.lat,
+        lon: coordinates.lng
+    };
+    $.ajax({
+        url: '/api/v1/pests/reports',
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+            'Authorization': 'Bearer ' + localStorage.getItem('api_key')
+        },
+        type: 'POST',
+        data: JSON.stringify(data),
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        success: function(msg) {
+            console.log(msg);
+        },
+        error: function (msg) {
+            console.log(msg)
+        }
+    });
+});
+
+function formSerialize(data){
+    let form = data.serializeArray();
+    let formObject = {};
+    $.each(form,
+        function(i, v) {
+            formObject[v.name] = v.value;
+        });
+    return formObject;
+}

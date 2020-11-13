@@ -5,7 +5,7 @@
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card">
-                    <div class="card-header bg-primary text-white">My projects</div>
+                    <div class="card-header bg-success text-white">My projects</div>
 
                     <div class="card-body">
                         @if (session('created'))
@@ -25,9 +25,10 @@
                                 <div class="row">
                                     <div class="col-12">
                                         <div class="row">
-                                            <div class="col-6 key_field">
+                                            <div class="input-group-icon col-6 key_field">
                                                 <input type="text" class="form-control"
                                                        placeholder="xxxx-xxxx-xxxx-xxxx" disabled>
+                                                <div class="icon"><i class="fas fa-check-circle use_key d-none" data-toggle="tooltip" data-placement="top" title="Click here to use this api key when sending reports"></i></div>
                                             </div>
 
                                             <div class="col-2">

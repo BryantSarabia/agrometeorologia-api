@@ -42,7 +42,7 @@ class Kernel extends HttpKernel
 
         'api' => [
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            // 'api_key',
+             'api_key',
             // 'accept',
            // 'content_type'
         ],

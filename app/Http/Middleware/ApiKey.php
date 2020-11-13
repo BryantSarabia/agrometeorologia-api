@@ -23,9 +23,13 @@ class ApiKey
     {
         $token = $request->bearerToken();
 
+        if($token == null){
+            return $this->ResponseError(401,'Unauthorized','Incorrect API Key, please try again');
+        }
+
         $project = Project::where('api_key',$token)->first();
 
-        if(!$project){
+        if($project == null ){
             return $this->ResponseError(401,'Unauthorized','Incorrect API Key, please try again');
         }
 

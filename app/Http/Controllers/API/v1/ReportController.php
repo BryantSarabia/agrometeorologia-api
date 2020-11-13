@@ -75,10 +75,6 @@ class ReportController extends Controller
     public function report(Request $request){
 
 
-        if(!Auth::user() && !$request->bearerToken()){
-            return $this->ResponseError(401,'Unauthorized','You must be logged in or have an API Key');
-        }
-
         if(!isset($request->coordinates['lat']) || !$this->validateCoordinate($request->coordinates['lat'])){
             return $this->ResponseError(400, 'Bad request', 'Parameter lat must be a float number');
         }
@@ -105,7 +101,7 @@ class ReportController extends Controller
         }
 
 
-        $user_id = Auth::id() ? Auth::id() : (Project::where('api_key', $request->bearerToken())->first())->user->id;
+        $user_id = (Project::where('api_key', $request->bearerToken())->first())->user->id;
 
         $report = Report::create([
             'user_id' => $user_id,
