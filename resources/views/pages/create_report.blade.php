@@ -45,7 +45,7 @@
     @parent
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
     <script
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBwMt8hY7PpmKikcYIxRiH7ApE1roDA6aA&callback=initMap&libraries=&v=weekly"
+        src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_API_KEY') }}&callback=initMap&libraries=&v=weekly"
         defer
     ></script>
     <script src="{{ asset("js/map.js") }}"></script>
