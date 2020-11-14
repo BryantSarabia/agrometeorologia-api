@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-md navbar-dark bg-success shadow-sm">
+<nav class="navbar navbar-expand-md navbar-dark bg-success shadow-sm ">
     <a class="navbar-brand" href="{{ route('home') }}">{{ config('app.name', 'Laravel') }}</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
             aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,9 +35,13 @@
                         Reports
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                        <a class="dropdown-item" href="{{ route('report.create') }}">New Report</a>
-                        <a class="dropdown-item" href="#">Reports</a>
+                        <a class="dropdown-item" href="{{ route('report.create') }}">Make Report</a>
+                        <a class="dropdown-item" href="{{ route('report.index') }}">All reports</a>
                     </div>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {{ Route::currentRouteName() == 'user.locations' ? 'active' : '' }}" href="">My Locations</a>
                 </li>
             @endauth
 

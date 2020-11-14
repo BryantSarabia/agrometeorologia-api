@@ -27,6 +27,11 @@ class ForeignKeys extends Migration
             $table->foreign('user_id')->references('id')
                 ->on('users')->onDelete('NO ACTION');
         });
+
+        Schema::table('locations', function(Blueprint $table){
+           $table->foreign('user_id')->references('id')
+                ->on('users')->onDelete('CASCADE');
+        });
     }
 
     /**

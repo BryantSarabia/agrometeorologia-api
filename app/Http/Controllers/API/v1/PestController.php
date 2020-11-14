@@ -8,9 +8,10 @@ use App\Models\Report;
 use App\Traits\ResponsesJSON;
 use App\Traits\UtilityMethods;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
-class ReportController extends Controller
+class PestController extends Controller
 {
     use UtilityMethods, ResponsesJSON;
 
@@ -20,6 +21,23 @@ class ReportController extends Controller
     {
         $this->to = date('Y-m-d');
         $this->from = date('Y-m-d', strtotime($this->to . ' - 1 month'));
+    }
+
+    public function index(){
+        $reports = Report::recent()->get();
+
+        $array = collect();
+
+        if ($reports->count() > 0) {
+            $reports->each(function ($report) use ($array) {
+                $array->push($report->formatResponse($report->distance));
+            });
+            $array = Collection::wrap(['data' => $array]);
+
+        } else {
+            $array['data'] = [];
+        }
+        return response()->json($array,200,['Content-Type' => 'application/json']);
     }
 
     public function getReports(Request $request){
@@ -86,6 +104,8 @@ class ReportController extends Controller
         if(!$request->name || !is_string($request->name)){
             return $this->ResponseError(400, 'Bad request', 'Name must be a string');
         }
+
+
         if(!$request->message || !is_string($request->message)){
             return $this->ResponseError(400, 'Bad request', 'Message must be a string');
         }
@@ -108,7 +128,8 @@ class ReportController extends Controller
             'name' => $request->name,
             'message' => $request->message,
             'lat' => $lat,
-            'lon' => $lon
+            'lon' => $lon,
+            'created_at' => date('Y-m-d')
             ]);
 
 

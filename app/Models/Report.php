@@ -21,21 +21,25 @@ class Report extends Model
         'name',
         'message',
         'lat',
-        'lon'
+        'lon',
+        'created_at'
     ];
 
     protected $casts = [
-        'created_at' => 'datetime:Y-m-d',
-        'updated_at' => 'datetime:Y-m-d',
         'id' => 'string',
         'user_id' => 'string'
     ];
 
-    protected $dateFormat = 'Y-m-d';
+    public $timestamps = false;
 
     public function user()
     {
         return $this->belongsTo('App\Models\User');
+    }
+
+    public function scopeRecent($query){
+        $from = date('Y-m-d', strtotime(date('Y-m-d') . ' - 1 month'));
+        return $query->where('created_at', '>=', $from );
     }
 
     public function formatResponse($distance = null)
@@ -50,7 +54,7 @@ class Report extends Model
                     'lat' => $this->lat,
                     'lon' => $this->lon
                 ],
-                'created_at' => $this->created_at->format('Y-m-d')
+                'created_at' => $this->created_at
             ];
         } else {
             return [
@@ -63,7 +67,7 @@ class Report extends Model
                     'lat' => $this->lat,
                     'lon' => $this->lon
                 ],
-                'created_at' => $this->created_at->format('Y-m-d')
+                'created_at' => $this->created_at
             ];
         }
 

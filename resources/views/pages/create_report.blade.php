@@ -15,15 +15,15 @@
 
             <div class="row justify-content-center">
                 <div class="col-6">
-                    <form id="pest-report">
+                    <form name="report" id="pest-report">
                         <div class="form-group">
                             <label for="name">Pest:</label>
-                            <input type="text" name="name" class="form-control" required="required"/>
+                            <input type="text" name="name" class="form-control"/>
                         </div>
 
                         <div class="form-group">
                             <label for="message">Message:</label>
-                            <textarea name="message" class="form-control" required="required"></textarea>
+                            <textarea name="message" class="form-control"></textarea>
                         </div>
 
                         {{--MAPPA--}}

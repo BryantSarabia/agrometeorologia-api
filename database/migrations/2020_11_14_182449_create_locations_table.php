@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateReportsTable extends Migration
+class CreateLocationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,12 @@ class CreateReportsTable extends Migration
      */
     public function up()
     {
-        Schema::create('reports', function (Blueprint $table) {
+        Schema::create('locations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id');
-            $table->string('name');
-            $table->text('message');
             $table->double('lat');
             $table->double('lon');
-            $table->date('created_at');
+            $table->integer('radius');
         });
     }
 
@@ -32,7 +30,7 @@ class CreateReportsTable extends Migration
     public function down()
     {
         Schema::disableForeignKeyConstraints();
-        Schema::dropIfExists('reports');
+        Schema::dropIfExists('locations');
         Schema::enableForeignKeyConstraints();
     }
 }

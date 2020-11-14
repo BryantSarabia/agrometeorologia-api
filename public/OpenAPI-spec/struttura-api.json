@@ -920,6 +920,76 @@
           }
         }
       }
+    },
+    "/reports": {
+      "get": {
+        "summary": "Ritorna le segnalazioni dell'ultimo mese",
+        "tags": [
+          "infestanti"
+        ],
+        "description": "",
+        "operationId": "getReports",
+        "responses": {
+          "200": {
+            "description": "successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Pest"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "user_id": "21",
+                      "report_id": "1",
+                      "name": "Hydrocotyle",
+                      "message": "Vi consiglio di utilizzare X prodotto",
+                      "distance": 51.0121,
+                      "coordinates": {
+                        "lat": 43.1231212,
+                        "lon": 10.1231242
+                      },
+                      "created_at": "2020-10-10"
+                    },
+                    {
+                      "user_id": "41",
+                      "report_id": "2",
+                      "name": "Plantago",
+                      "message": "Proteggete le vostre colture o saranno in pericolo",
+                      "distance": 51.0121,
+                      "coordinates": {
+                        "lat": 43.1231212,
+                        "lon": 10.1231242
+                      },
+                      "created_at": "2020-10-14"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/401Unauthorized"
+          },
+          "406": {
+            "$ref": "#/components/responses/406NotAcceptable"
+          },
+          "500": {
+            "$ref": "#/components/responses/500Error"
+          }
+        }
+      }
     }
   },
   "security": [

@@ -36,5 +36,9 @@ Route::get('models','ModelController@getModels')->name('api.v1.models.getModels'
 Route::get('stations/{station_id}/models/{model_name}','ModelController@runModel')->name('api.v1.models.runModel');
 
 /********** Pests Tag ***********/
-Route::post('pests/reports','ReportController@report')->name('api.v1.pests.report');
-Route::get('pests/reports','ReportController@getReports')->name('api.v1.pests.getReports');
+Route::post('pests/reports','PestController@report')->name('api.v1.pests.report');
+Route::get('pests/reports','PestController@getReports')->name('api.v1.pests.getReports'); // Date le coordinate ed il raggio ritorna le segnalazioni d'interesse
+Route::get('reports','PestController@index')->name('api.v1.pest.reports.index'); // Ritorna tutte le segnalazioni nell'ultimo mese.
+
+Route::get('me/locations', 'LocationController@index')->name('api.v1.me.locations.index');
+Route::post('me/locations','LocationController@save')->name('api.v1.me.locations.save');

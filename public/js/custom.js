@@ -10,6 +10,12 @@ $(function () {
     $('[data-toggle="tooltip"]').tooltip()
 })
 
+$( function() {
+    $( ".datepicker" ).datepicker();
+    $( ".datepicker" ).datepicker( "option", "showAnim", "blind");
+    $( ".datepicker" ).datepicker( "option", "dateFormat", "yy-mm-dd");
+} );
+
 const Toast = Swal.mixin({
     toast: true,
     position: 'top-end',
@@ -40,7 +46,7 @@ $('#deleteProject').on('submit', function (event) {
 
     $.ajax({
         type: "DELETE",
-        url: `/project/${project_id}/delete`,
+        url: `/projects/${project_id}/delete`,
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         },
@@ -70,7 +76,6 @@ $(document).on('click', '.generate,.refresh', function (event) {
     target = $(this).parent().siblings('.key_field').find('input');
     project_id = $(this).data('id');
     use = $(this).parent().siblings('.key_field').find('.use_key');
-    console.log('asd');
     generate = true; /* Boolean per sapere se sto generando un nuovo token */
     $('#confirmPasswordModal').modal('show');
 })
@@ -82,7 +87,7 @@ $('#confirmPassword').on('submit', function (event) {
 
     $.ajax({
         type: "POST",
-        url: `/project/${project_id}/token`,
+        url: `/projects/${project_id}/token`,
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         },
@@ -125,6 +130,10 @@ $('#confirmPassword').on('submit', function (event) {
 
         },
         error: function (error) {
+            console.log(error);
+            if(password.hasClass('is-invalid')){
+                password.parent().children('span').remove();
+            }
             password.addClass('is-invalid');
             password.parent().append(
                 `
@@ -174,7 +183,20 @@ $(document).on('click','.use_key', function(){
 
 $(document).on('submit','#pest-report', function(event){
     event.preventDefault();
-    let data = formSerialize($(this));
+    let form = $(this);
+    if(!validateFormReport(form)){
+        return false;
+    }
+    let data = formSerialize(form);
+
+    if(marker === null){
+        Toast.fire({
+            icon: "warning",
+            title: "Missing coordinates"
+        })
+        return false;
+    }
+
     let coordinates = marker.getPosition().toJSON();
     data.coordinates = {
         lat: coordinates.lat,
@@ -191,13 +213,83 @@ $(document).on('submit','#pest-report', function(event){
         contentType: 'application/json; charset=utf-8',
         dataType: 'json',
         success: function(msg) {
-            console.log(msg);
+            Toast.fire({
+                icon: 'success',
+                title: 'Report created'
+            })
+            window.location.replace(window.location.origin + "/reports")
         },
         error: function (msg) {
-            console.log(msg)
+            Toast.fire({
+                icon: "warning",
+                title: msg.responseJSON.title,
+                text: msg.responseJSON.details,
+            })
         }
     });
 });
+
+
+$(document).on('submit','#get-reports', function(event){
+    event.preventDefault();
+    let form = $(this);
+    let data = formSerialize(form);
+    console.log(data.radius);
+    if(marker === null){
+        Toast.fire({
+            icon: "warning",
+            title: "Missing coordinates"
+        })
+        return false;
+    }
+
+    let coordinates = marker.getPosition().toJSON();
+
+    $.ajax({
+        url: `/api/v1/pests/reports?lat=${coordinates.lat}&lon=${coordinates.lng}&radius=${data.radius}&from=${data.from}&to=${data.to}`,
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+            'Authorization': 'Bearer ' + localStorage.getItem('api_key')
+        },
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            deleteMarkers()
+            $.each(data.data, function(index,value){
+                addReportMarker(value,map);
+            })
+        },
+        error: function (msg) {
+            console.log(msg);
+            Toast.fire({
+                icon: "warning",
+                title: msg.responseJSON.title,
+                text: msg.responseJSON.details,
+            })
+        }
+    });
+});
+
+
+var isDragging = false;
+$('#radius')
+    .mousedown(function() {
+
+        isDragging = true;
+    })
+    .mousemove(function() {
+        if (isDragging) {
+            $(this).siblings().eq(0).text($(this).val() + " km");
+
+            circle.setRadius(parseInt($(this).val()) * 1000);
+        }
+    })
+    .mouseup(function() {
+        isDragging = false;
+        $(this).siblings().eq(0).text($(this).val() + " km");
+        circle.setRadius(parseInt($(this).val()) * 1000);
+
+    });
 
 function formSerialize(data){
     let form = data.serializeArray();
@@ -208,3 +300,32 @@ function formSerialize(data){
         });
     return formObject;
 }
+
+function validateFormReport(data){
+    let form = data.serializeArray();
+    let validated = true;
+    $.each(form,
+        function(i, v) {
+            if(v.value === ""){
+                let x = document.getElementsByName(v.name);
+                if($(x).hasClass('is-invalid')){
+                    $(x).parent().children('span').remove();
+                }
+                $(x).addClass('is-invalid');
+                $(x).parent().append(
+                    `
+                <span class="invalid-feedback" role="alert">
+                    <strong>${capitalizeFirstLetter(v.name) + " cannot be empty"}</strong>
+                </span>
+                `
+                )
+                validated = false;
+            }
+        });
+    return validated;
+}
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
