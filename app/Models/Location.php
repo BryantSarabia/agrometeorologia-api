@@ -19,8 +19,8 @@ class Location extends Model
 
     public function formatResponse(){
         return [
-            'id' => $this->id,
-            'user_id' => $this->user_id,
+            'id' => (string) $this->id,
+            'user_id' => (string) $this->user_id,
             'radius' => $this->radius,
             'coordinates' => [
                 'lat' => $this->lat,

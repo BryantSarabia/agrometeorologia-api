@@ -31,7 +31,7 @@
                             <div class="form-group row justify-content-between">
                                 <label class="col-1 col-form-label">From</label>
                                 <div class="col-10">
-                                    <input type="text" name="from" class="form-control form-control-sm datepicker" autocomplete="off" value="{{ date('Y-m-d') }}">
+                                    <input type="text" name="from" class="form-control form-control-sm datepicker" autocomplete="off" value="{{ date('Y-m-d', strtotime( date('Y-m-d') . " - 1 month")) }}">
                                     <small class="form-text text-muted">Default: last 30 days</small>
                                 </div>
                             </div>
@@ -39,7 +39,7 @@
                             <div class="form-group row justify-content-between">
                                 <label class="col-1 col-form-label">To</label>
                                 <div class="col-10">
-                                    <input type="text" name="to" class="form-control form-control-sm datepicker" autocomplete="off" value="{{ date('Y-m-d', strtotime( date('Y-m-d') . " - 1 month")) }}">
+                                    <input type="text" name="to" class="form-control form-control-sm datepicker" autocomplete="off" value="{{ date('Y-m-d') }}">
                                     <small class="form-text text-muted">Default: Current day</small>
                                 </div>
                             </div>

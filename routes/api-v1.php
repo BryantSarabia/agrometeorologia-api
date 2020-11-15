@@ -41,4 +41,6 @@ Route::get('pests/reports','PestController@getReports')->name('api.v1.pests.getR
 Route::get('reports','PestController@index')->name('api.v1.pest.reports.index'); // Ritorna tutte le segnalazioni nell'ultimo mese.
 
 Route::get('me/locations', 'LocationController@index')->name('api.v1.me.locations.index');
+Route::delete('me/locations', 'LocationController@deleteAll')->name('api.v1.me.locations.deleteAll');
 Route::post('me/locations','LocationController@save')->name('api.v1.me.locations.save');
+Route::delete('me/locations/{id}', 'LocationController@delete')->name('api.v1.me.locations.delete');

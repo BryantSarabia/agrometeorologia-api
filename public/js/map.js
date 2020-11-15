@@ -3,27 +3,32 @@ let marker = null;
 let markers = [];
 let circle = null;
 let circles = [];
+let locations = [];
 
 function initMap() {
     map = new google.maps.Map(document.getElementById("map"), {
-        center: { lat: 42.3600768, lng: 13.3738677},
+        center: {lat: 42.3600768, lng: 13.3738677},
         zoom: 10,
         disableDefaultUI: true,
     });
 
-    if(window.location.pathname === "/reports"){
+    if (window.location.pathname === "/reports") {
         initReports(map);
+    }
+
+    if (window.location.pathname === "/me/locations") {
+        initLocations(map);
     }
 
     initZoomControl(map);
     initFullscreenControl(map);
     initCurrentPos(map);
-    map.addListener('click',(e) => {
-       placeMarkerAndPanTo(e.latLng, map)
+    map.addListener('click', (e) => {
+        placeMarkerAndPanTo(e.latLng, map)
     });
 }
 
-function initCurrentPos(map){
+function initCurrentPos(map) {
 
     infoWindow = new google.maps.InfoWindow();
 
@@ -44,7 +49,7 @@ function initCurrentPos(map){
 
                     infoWindow.open(map);
                     map.setCenter(pos);
-                    placeMarkerAndPanTo(pos,map);
+                    placeMarkerAndPanTo(pos, map);
 
                 },
                 () => {
@@ -136,34 +141,37 @@ function exitFullscreen() {
     }
 }
 
-function placeMarkerAndPanTo(latLng, map){
-    if(marker !== null){
+function placeMarkerAndPanTo(latLng, map) {
+    if (marker !== null) {
         marker.setMap(null);
     }
 
-    if(circle !== null){
+    if (circle !== null) {
         circle.setMap(null);
     }
-   marker = new google.maps.Marker({
+    marker = new google.maps.Marker({
         position: latLng,
-        map: map
+        map: map,
+        icon: window.location.origin + "/img/icons/location.png",
     });
 
-    circle = new google.maps.Circle({
-        strokeColor: "#FF0000",
-        strokeOpacity: 0.8,
-        strokeWeight: 2,
-        fillColor: "#FF0000",
-        fillOpacity: 0.20,
-        map,
-        center: marker.getPosition().toJSON(),
-        radius: parseInt($('#radius').val()) * 1000,
-    });
+    if (window.location.pathname !== "/reports/create") {
+        circle = new google.maps.Circle({
+            strokeColor: "#5bf700",
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            fillColor: "#00ae00",
+            fillOpacity: 0.20,
+            map,
+            center: marker.getPosition().toJSON(),
+            radius: parseInt($('#radius').val()) * 1000,
+        });
+    }
     map.panTo(latLng);
     // console.log(marker.getPosition().toJSON());
 }
 
-function initReports(map){
+function initReports(map) {
     $.ajax({
         url: "/api/v1/reports",
         method: "GET",
@@ -172,14 +180,13 @@ function initReports(map){
             'Authorization': 'Bearer ' + localStorage.getItem('api_key')
         },
         dataType: "json",
-        success: function(data){
-            $.each(data.data, function(index, value){
-                console.log(value);
-                addReportMarker(value, map)
+        success: function (data) {
+            $.each(data.data, function (index, value) {
+                addMarkerWithTimeOut(value, map, addReportMarker, index * 400)
             })
 
         },
-        error: function(err){
+        error: function (err) {
             Toast.fire({
                 icon: "warning",
                 title: err.responseJSON.title,
@@ -189,7 +196,28 @@ function initReports(map){
     })
 }
 
-function addCircle(marker, map){
+function initLocations(map) {
+
+    $.ajax({
+        url: "/api/v1/me/locations",
+        method: "GET",
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+            'Authorization': 'Bearer ' + localStorage.getItem('api_key')
+        },
+        dataType: "json",
+        success: function (data) {
+            $.each(data.data, function (index, value) {
+                addLocationMarker(value,map);
+            });
+        },
+        error: function (err) {
+            console.log(err);
+        }
+    })
+}
+
+function addCircle(marker, map, radius = 10000) {
     const circle = new google.maps.Circle({
         strokeColor: "#FF0000",
         strokeOpacity: 0.8,
@@ -198,31 +226,29 @@ function addCircle(marker, map){
         fillOpacity: 0.20,
         map,
         center: marker.getPosition().toJSON(),
-        radius: 10000,
+        radius: radius,
     });
     circles.push(circle);
 }
 
-function deleteCircles(){
-    $.each(circles, function(index,value){
-        value.setMap(null);
-    })
+function deleteCircles() {
+    hideCircles();
     circles = [];
 }
 
-function addReportMarker(report, map){
+function addReportMarker(report, map) {
     const contentString =
         '<div id="content">' +
         '<div id="siteNotice">' +
         "</div>" +
         '<h1 id="firstHeading" class="firstHeading">' + report.name + '</h1>' +
         '<div id="bodyContent">' +
-        "<p>" + report.message + "</p>"+
-        "<small>(lat: " + report.coordinates.lat + " " + "lon: " + report.coordinates.lon +")</small>"+
-        "<br>"+
-        "<small>Created: "+ report.created_at +"</small>"
-        "</div>" +
-        "</div>";
+        "<p>" + report.message + "</p>" +
+        "<small>(lat: " + report.coordinates.lat + " " + "lon: " + report.coordinates.lon + ")</small>" +
+        "<br>" +
+        "<small>Created: " + report.created_at + "</small>"
+    "</div>" +
+    "</div>";
     const infoWindow = new google.maps.InfoWindow({
         content: contentString,
     });
@@ -230,6 +256,7 @@ function addReportMarker(report, map){
         position: {lat: report.coordinates.lat, lng: report.coordinates.lon},
         map: map,
         title: report.name,
+        animation: google.maps.Animation.DROP,
         icon: window.location.origin + "/img/icons/pest.png"
     });
     markers.push(marker);
@@ -238,9 +265,89 @@ function addReportMarker(report, map){
     });
 }
 
-function deleteMarkers(){
-    $.each(markers,function(index,value){
-       value.setMap(null);
+function addLocationMarker(location, map) {
+    const contentString =
+        '<div id="content">' +
+        '<div id="siteNotice">' +
+        "</div>" +
+        '<div id="bodyContent">' +
+        "<p>(lat: " + location.coordinates.lat + " " + "lon: " + location.coordinates.lon + ")</p>" +
+        "</div>" +
+        '<div class="row justify-content-center">' +
+        '<div class="col-4">' +
+        '<a class="btn btn-sm btn-danger delete-location" data-id="'+ location.id+'" role="button" href="#">Delete</a>'
+        '</div>' +
+        '</div>' +
+        "</div>";
+    const infoWindow = new google.maps.InfoWindow({
+        content: contentString,
+    });
+    const marker = new google.maps.Marker({
+        position: {lat: location.coordinates.lat, lng: location.coordinates.lon},
+        map: map,
+        animation: google.maps.Animation.DROP,
+        location_id: location.id
+    });
+    addCircle(marker, map, location.radius * 1000);
+    locations.push(marker);
+    google.maps.event.addListener(marker, "click", () => {
+        infoWindow.open(map, marker);
+    });
+}
+
+function deleteMarkers() {
+    $.each(markers, function (index, value) {
+        value.setMap(null);
     });
     markers = [];
+}
+
+function deleteLocations(){
+    $.each(locations, function (index, value) {
+        value.setMap(null);
+    });
+    locations = [];
+}
+
+function addMarkerWithTimeOut(obj, map, func, timeout) {
+    window.setTimeout(() => {
+        func(obj, map)
+    }, timeout);
+}
+
+function setCircleRadius(radius) {
+    if (circle !== null) {
+        circle.setRadius(radius);
+    }
+}
+
+function showCircles() {
+    setMapOnAll(circles, map);
+}
+
+function showLocations(){
+    setMapOnAll(locations,map);
+}
+
+function hideCircles(){
+    $.each(circles, function(index,value){
+       value.setMap(null)
+    });
+}
+
+function hideLocations(){
+    $.each(locations, function(index,value){
+        value.setMap(null)
+    });
+}
+
+function deleteLocations(){
+    hideLocations();
+    locations = [];
+}
+
+function setMapOnAll(array,map) {
+    $.each(array,function(index,value){
+        value.setMap(map)
+    });
 }

@@ -41,7 +41,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link {{ Route::currentRouteName() == 'user.locations' ? 'active' : '' }}" href="">My Locations</a>
+                    <a class="nav-link {{ Route::currentRouteName() == 'user.locations' ? 'active' : '' }}" href="{{ route('me.locations') }}">My Locations</a>
                 </li>
             @endauth
 

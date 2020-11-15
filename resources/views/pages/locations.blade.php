@@ -19,30 +19,15 @@
         <div class="col-3">
             <aside class="border border-success rounded shadow p-2">
 
-                <div class="row mt-5">
+                <div class="row h-25">
                     <div class="col">
-                        <h1 class="text-center">Get reports</h1>
+                        <h1 class="text-center">Save a location</h1>
                     </div>
                 </div>
 
-                <div class="row h-50 align-items-center">
+                <div class="row h-25 align-items-center">
                     <div class="col">
-                        <form id="get-reports">
-                            <div class="form-group row justify-content-between">
-                                <label class="col-1 col-form-label">From</label>
-                                <div class="col-10">
-                                    <input type="text" name="from" class="form-control form-control-sm datepicker" autocomplete="off" value="{{ date('Y-m-d') }}">
-                                    <small class="form-text text-muted">Default: last 30 days</small>
-                                </div>
-                            </div>
-
-                            <div class="form-group row justify-content-between">
-                                <label class="col-1 col-form-label">To</label>
-                                <div class="col-10">
-                                    <input type="text" name="to" class="form-control form-control-sm datepicker" autocomplete="off" value="{{ date('Y-m-d', strtotime( date('Y-m-d') . " - 1 month")) }}">
-                                    <small class="form-text text-muted">Default: Current day</small>
-                                </div>
-                            </div>
+                        <form id="save-location">
 
                             <div class="form-group row justify-content-between">
                                 <label class="col-1 col-form-label">Radius</label>
@@ -56,11 +41,22 @@
                             </div>
 
                             <div class="col text-center">
-                                <input  type="submit" value="Get" class="btn btn-success">
+                                <input  type="submit" value="Save" class="btn btn-success">
                             </div>
                         </form>
                     </div>
 
+                </div>
+
+                <div class="row h-50 align-items-end justify-content-between">
+
+                    <div class="col-5 text-center">
+                        <a id="hide-locations" class="btn btn-primary" role="button" href="#">Hide all</a>
+                    </div>
+
+                    <div class="col-5 text-center">
+                        <a id="delete-locations" class="btn btn-danger" role="button" href="#">Delete all</a>
+                    </div>
                 </div>
 
             </aside>

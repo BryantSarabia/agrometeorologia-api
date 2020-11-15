@@ -6,15 +6,19 @@ var project_id;
 const url = "127.0.0.1:8000";
 var api_key;
 
+/* Bootstrap and jQuery datepicker */
+
 $(function () {
     $('[data-toggle="tooltip"]').tooltip()
 })
 
-$( function() {
-    $( ".datepicker" ).datepicker();
-    $( ".datepicker" ).datepicker( "option", "showAnim", "blind");
-    $( ".datepicker" ).datepicker( "option", "dateFormat", "yy-mm-dd");
-} );
+$(function () {
+    $(".datepicker").datepicker();
+    $(".datepicker").datepicker("option", "showAnim", "blind");
+    $(".datepicker").datepicker("option", "dateFormat", "yy-mm-dd");
+});
+
+/* Sweet alert " */
 
 const Toast = Swal.mixin({
     toast: true,
@@ -97,7 +101,7 @@ $('#confirmPassword').on('submit', function (event) {
         },
         success: function (response) {
             $('#confirmPasswordModal').modal('hide');
-            if(password.hasClass('is-invalid')){
+            if (password.hasClass('is-invalid')) {
                 password.removeClass('is-invalid');
                 $('.invalid-feedback').empty();
             }
@@ -131,7 +135,7 @@ $('#confirmPassword').on('submit', function (event) {
         },
         error: function (error) {
             console.log(error);
-            if(password.hasClass('is-invalid')){
+            if (password.hasClass('is-invalid')) {
                 password.parent().children('span').remove();
             }
             password.addClass('is-invalid');
@@ -169,11 +173,11 @@ $(document).on('click', '.hide_key', function (event) {
     generate = false; /* Boolean a falso per sapere che devo prendere il token di un progetto */
 })
 
-$(document).on('click','.use_key', function(){
+$(document).on('click', '.use_key', function () {
     let token = $(this).parent().siblings().eq(0).val();
 
-    if(token.length > 0){
-        localStorage.setItem('api_key',token);
+    if (token.length > 0) {
+        localStorage.setItem('api_key', token);
         Toast.fire({
             icon: 'success',
             title: 'API Key assigned succesfully'
@@ -181,15 +185,17 @@ $(document).on('click','.use_key', function(){
     }
 })
 
-$(document).on('submit','#pest-report', function(event){
+/* Pest reports */
+
+$(document).on('submit', '#pest-report', function (event) {
     event.preventDefault();
     let form = $(this);
-    if(!validateFormReport(form)){
+    if (!validateFormReport(form)) {
         return false;
     }
     let data = formSerialize(form);
 
-    if(marker === null){
+    if (marker === null) {
         Toast.fire({
             icon: "warning",
             title: "Missing coordinates"
@@ -212,12 +218,12 @@ $(document).on('submit','#pest-report', function(event){
         data: JSON.stringify(data),
         contentType: 'application/json; charset=utf-8',
         dataType: 'json',
-        success: function(msg) {
+        success: function () {
             Toast.fire({
                 icon: 'success',
                 title: 'Report created'
             })
-            window.location.replace(window.location.origin + "/reports")
+             window.location.replace(window.location.origin + "/reports")
         },
         error: function (msg) {
             Toast.fire({
@@ -230,19 +236,17 @@ $(document).on('submit','#pest-report', function(event){
 });
 
 
-$(document).on('submit','#get-reports', function(event){
+$(document).on('submit', '#get-reports', function (event) {
     event.preventDefault();
     let form = $(this);
     let data = formSerialize(form);
-    console.log(data.radius);
-    if(marker === null){
+    if (marker === null) {
         Toast.fire({
             icon: "warning",
             title: "Missing coordinates"
         })
         return false;
     }
-
     let coordinates = marker.getPosition().toJSON();
 
     $.ajax({
@@ -253,14 +257,13 @@ $(document).on('submit','#get-reports', function(event){
         },
         type: 'GET',
         dataType: 'json',
-        success: function(data) {
+        success: function (data) {
             deleteMarkers()
-            $.each(data.data, function(index,value){
-                addReportMarker(value,map);
+            $.each(data.data, function (index, value) {
+                addMarkerWithTimeOut(value, map, addReportMarker,index * 400);
             })
         },
         error: function (msg) {
-            console.log(msg);
             Toast.fire({
                 icon: "warning",
                 title: msg.responseJSON.title,
@@ -270,45 +273,170 @@ $(document).on('submit','#get-reports', function(event){
     });
 });
 
+/* Location save */
 
+$(document).on('submit', '#save-location', function(event){
+    event.preventDefault();
+    let form = $(this);
+    let data = formSerialize(form);
+    if (marker === null) {
+        Toast.fire({
+            icon: "warning",
+            title: "Missing coordinates"
+        })
+        return false;
+    }
+    let coordinates = marker.getPosition().toJSON();
+    data.coordinates = {
+        lat: coordinates.lat,
+        lon: coordinates.lng
+    };
+
+    $.ajax({
+        url: "/api/v1/me/locations",
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+            'Authorization': 'Bearer ' + localStorage.getItem('api_key')
+        },
+        method: "POST",
+        dataType: "json",
+        contentType: "application/json; charset=utf-8",
+        data: JSON.stringify(data),
+        success: function (data) {
+            Toast.fire({
+                icon: "success",
+                title: "Location saved"
+            })
+            addLocationMarker(data, map)
+        },
+        error: function(err){
+            Toast.fire({
+                icon: "warning",
+                title: err.responseJSON.title,
+                text: err.responseJSON.details,
+            })
+        }
+    })
+});
+
+$(document).on("click", ".delete-location", function(event){
+    event.preventDefault();
+    let id = $(this).data("id");
+    $.ajax({
+        url: "/api/v1/me/locations/" + id,
+        method: "DELETE",
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+            'Authorization': 'Bearer ' + localStorage.getItem('api_key')
+        },
+        dataType: "json",
+        success: function(data){
+            Toast.fire({
+                icon: "success",
+                title: "Location deleted"
+            })
+            deleteLocations();
+            deleteCircles();
+            initLocations(map);
+        },
+        error: function(err){
+            Toast.fire({
+                icon: "warning",
+                title: err.responseJSON.title,
+                text: err.responseJSON.details,
+            })
+        }
+    })
+})
+
+
+$(document).on("click", "#hide-locations", function(event){
+    event.preventDefault();
+   hideLocations();
+   hideCircles();
+   $(this).attr("id", "show-locations");
+   $(this).text("Show all");
+})
+
+$(document).on("click", "#show-locations", function(event){
+    event.preventDefault();
+    showLocations();
+    showCircles();
+    $(this).attr("id", "hide-locations");
+    $(this).text("Hide all");})
+
+$(document).on("click", "#delete-locations", function(event){
+    event.preventDefault();
+        $.ajax({
+            url: "/api/v1/me/locations",
+            method: "DELETE",
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                'Authorization': 'Bearer ' + localStorage.getItem('api_key')
+            },
+            dataType: "json",
+            success: function(data){
+                Toast.fire({
+                    icon: "success",
+                    title: "Locations deleted"
+                })
+                deleteLocations();
+                deleteCircles();
+            },
+            error: function(err){
+                Toast.fire({
+                    icon: "warning",
+                    title: err.responseJSON.title,
+                    text: err.responseJSON.details,
+                })
+            }
+        })
+
+})
+
+
+
+/* Range utilizzato per settare il raggio */
 var isDragging = false;
 $('#radius')
-    .mousedown(function() {
+    .mousedown(function () {
 
         isDragging = true;
     })
-    .mousemove(function() {
+    .mousemove(function () {
         if (isDragging) {
             $(this).siblings().eq(0).text($(this).val() + " km");
+            setCircleRadius($(this).val() * 1000);
 
-            circle.setRadius(parseInt($(this).val()) * 1000);
         }
     })
-    .mouseup(function() {
+    .mouseup(function () {
         isDragging = false;
         $(this).siblings().eq(0).text($(this).val() + " km");
-        circle.setRadius(parseInt($(this).val()) * 1000);
+        setCircleRadius($(this).val() * 1000);
 
     });
 
-function formSerialize(data){
+/* Funzione per creare un oggetto JSON a partire dal form */
+function formSerialize(data) {
     let form = data.serializeArray();
     let formObject = {};
     $.each(form,
-        function(i, v) {
+        function (i, v) {
             formObject[v.name] = v.value;
         });
     return formObject;
 }
 
-function validateFormReport(data){
+/* Valida che i campi del formulario non siano nulli */
+function validateFormReport(data) {
     let form = data.serializeArray();
     let validated = true;
     $.each(form,
-        function(i, v) {
-            if(v.value === ""){
+        function (i, v) {
+            if (v.value === "") {
                 let x = document.getElementsByName(v.name);
-                if($(x).hasClass('is-invalid')){
+                if ($(x).hasClass('is-invalid')) {
                     $(x).parent().children('span').remove();
                 }
                 $(x).addClass('is-invalid');
