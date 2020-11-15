@@ -11,31 +11,27 @@
 @section('content')
 
     <div id="home-carousel" class="carousel slide" data-ride="carousel">
-        <ol class="carousel-indicators">
-            <li data-target="#home-carousel" data-slide-to="0" class="active"></li>
-            <li data-target="#home-carousel" data-slide-to="1"></li>
-            <li data-target="#home-carousel" data-slide-to="2"></li>
-        </ol>
         <div class="carousel-inner h-100">
             <div class="carousel-item active">
-                <img class="d-block w-100" src="{{ asset("img/pest_report.jpg") }}" alt="First slide">
+                <img class="d-block w-100" src="{{ asset("img/api.jpg") }}" alt="First slide">
                 <div class="carousel-caption d-none d-md-block">
-                    <h5>First slide label</h5>
-                    <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
+                    <h3>API Documentation</h3>
+                    <a href="{{ route('api.specification') }}" class="btn home-button mx-2">Documentation</a>
                 </div>
             </div>
             <div class="carousel-item">
-                <img class="d-block w-100" src="{{ asset("img/pest_report.jpg") }}" alt="Second slide">
+                <img class="d-block w-100" src="{{ asset("img/pest.jpg") }}" alt="Second slide">
                 <div class="carousel-caption d-none d-md-block">
-                    <h5>Second slide label</h5>
-                    <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
+                    <h3 class="p-2">Pest reports</h3>
+                    <a href="{{ route('report.create') }}" class="btn home-button mx-2">Make a report</a>
+                    <a href="{{ route('report.create') }}" class="btn home-button mx-2">See all reports</a>
                 </div>
             </div>
             <div class="carousel-item">
-                <img class="d-block w-100" src="{{ asset("img/pest_report.jpg") }}" alt="Third slide">
+                <img class="d-block w-100" src="{{ asset("img/location.jpg") }}" alt="Third slide">
                 <div class="carousel-caption d-none d-md-block">
-                    <h5>Third slide label</h5>
-                    <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
+                    <h3>Locations</h3>
+                    <a href="{{ route('me.locations') }}" class="btn home-button mx-2">My locations</a>
                 </div>
             </div>
         </div>

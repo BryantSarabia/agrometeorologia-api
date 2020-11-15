@@ -19,14 +19,14 @@ Route::post('projects/{project}/token','ProjectController@token')->name('project
 
 Route::get('reports/create',function(){
     return view('pages.create_report');
-})->name('report.create');
+})->name('report.create')->middleware('auth');
 
 Route::get('reports',function(){
     return view('pages.reports');
-})->name('report.index');
+})->name('report.index')->middleware('auth');
 
 Route::get('me/locations',function(){
     return view('pages.locations');
-})->name('me.locations');
+})->name('me.locations')->middleware('auth');
 
 
