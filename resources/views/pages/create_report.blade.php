@@ -19,7 +19,7 @@
                     <form name="report" id="pest-report">
                         <div class="form-group">
                             <label for="name">Pest:</label>
-                            <input type="text" name="name" class="form-control"/>
+                            <input type="text" name="name" class="form-control" autocomplete="off"/>
                         </div>
 
                         <div class="form-group">
