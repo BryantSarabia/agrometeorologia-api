@@ -14,6 +14,7 @@ function initMap() {
 
     if (window.location.pathname === "/reports") {
         initReports(map);
+        initLocations(map);
     }
 
     if (window.location.pathname === "/me/locations") {
@@ -187,11 +188,7 @@ function initReports(map) {
 
         },
         error: function (err) {
-            Toast.fire({
-                icon: "warning",
-                title: err.responseJSON.title,
-                text: err.responseJSON.details,
-            })
+            console.log(err)
         }
     })
 }
@@ -212,7 +209,11 @@ function initLocations(map) {
             });
         },
         error: function (err) {
-            console.log(err);
+            Toast.fire({
+                icon: "warning",
+                title: err.responseJSON.title,
+                text: err.responseJSON.details,
+            })
         }
     })
 }
@@ -241,7 +242,7 @@ function addReportMarker(report, map) {
         '<div id="content">' +
         '<div id="siteNotice">' +
         "</div>" +
-        '<h1 id="firstHeading" class="firstHeading">' + report.name + '</h1>' +
+        '<h3 id="firstHeading" class="firstHeading">' + report.name + '</h3>' +
         '<div id="bodyContent">' +
         "<p>" + report.message + "</p>" +
         "<small>(lat: " + report.coordinates.lat + " " + "lon: " + report.coordinates.lon + ")</small>" +

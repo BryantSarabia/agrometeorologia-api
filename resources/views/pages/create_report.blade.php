@@ -5,7 +5,8 @@
 
 @section('content')
 
-    <div class="card">
+
+    <div class="card mt-2 mb-1">
 
         <img src="{{ asset('img/pest_report.jpg') }}" class="card-img-top" alt="Pest">
 

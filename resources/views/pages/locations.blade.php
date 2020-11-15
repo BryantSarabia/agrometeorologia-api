@@ -15,13 +15,14 @@
 
 @section('content')
 
-    <div class="row">
+    <div class="row mt-2 mb-2">
         <div class="col-3">
             <aside class="border border-success rounded shadow p-2">
 
                 <div class="row h-25">
-                    <div class="col">
-                        <h1 class="text-center">Save a location</h1>
+                    <div class="col text-center">
+                        <h1>Save a location</h1>
+                        <small class="text-danger">Click on the map to set the desired location</small>
                     </div>
                 </div>
 
@@ -50,8 +51,8 @@
 
                 <div class="row h-50 align-items-end justify-content-between">
 
-                    <div class="col-5 text-center">
-                        <a id="hide-locations" class="btn btn-primary" role="button" href="#">Hide all</a>
+                    <div class="col-6 text-center">
+                        <a id="hide-locations" class="btn btn-primary" role="button" href="#">Hide locations</a>
                     </div>
 
                     <div class="col-5 text-center">

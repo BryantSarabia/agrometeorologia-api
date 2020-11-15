@@ -355,7 +355,7 @@ $(document).on("click", "#hide-locations", function(event){
    hideLocations();
    hideCircles();
    $(this).attr("id", "show-locations");
-   $(this).text("Show all");
+   $(this).text("Show locations");
 })
 
 $(document).on("click", "#show-locations", function(event){
@@ -363,11 +363,12 @@ $(document).on("click", "#show-locations", function(event){
     showLocations();
     showCircles();
     $(this).attr("id", "hide-locations");
-    $(this).text("Hide all");})
+    $(this).text("Hide locations");})
 
 $(document).on("click", "#delete-locations", function(event){
     event.preventDefault();
-        $.ajax({
+
+     let xhr =  $.ajax({
             url: "/api/v1/me/locations",
             method: "DELETE",
             headers: {

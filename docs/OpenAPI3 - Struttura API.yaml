@@ -24,8 +24,10 @@ tags:
     description: Informazioni sugli infestanti
   - name: stazioni
     description: Stazioni meteorologiche
+  - name: locations
+    description: Locations salvate dall'utente
 paths:
-  /stations:
+  '/stations':
     parameters:
       - in: query
         name: province
@@ -83,7 +85,7 @@ paths:
           $ref: '#/components/responses/406NotAcceptable'
         '500':
           $ref: '#/components/responses/500Error'
-  /stations/{station_id}:
+  '/stations/{station_id}':
     parameters:
       - $ref: '#/components/parameters/StationId'
     get:
@@ -240,7 +242,7 @@ paths:
           $ref: '#/components/responses/406NotAcceptable'
         '500':
           $ref: '#/components/responses/500Error'
-  /indicators:
+  '/indicators':
     get:
       summary: Lista di indicatori
       tags:
@@ -279,7 +281,7 @@ paths:
           $ref: '#/components/responses/406NotAcceptable'
         '500':
           $ref: '#/components/responses/500Error'
-  /indicators/{indicator_id}:
+  '/indicators/{indicator_id}':
     parameters:
       - $ref: '#/components/parameters/IndicatorId'
     get:
@@ -313,7 +315,7 @@ paths:
           $ref: '#/components/responses/406NotAcceptable'
         '500':
           $ref: '#/components/responses/500Error'
-  /models:
+  '/models':
     get:
       summary: Lista di modelli
       tags:
@@ -475,7 +477,7 @@ paths:
           $ref: '#/components/responses/406NotAcceptable'
         '500':
           $ref: '#/components/responses/500Error'
-  /pests/reports:
+  '/pests/reports':
     get:
       parameters:
         - $ref: '#/components/parameters/From'
@@ -562,10 +564,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                data:
-                 $ref: '#/components/schemas/Pest'
+              $ref: '#/components/schemas/Pest'
             example:
               user_id: "21"
               name: 'Hydrocotyle'
@@ -599,7 +598,7 @@ paths:
           $ref: '#/components/responses/415MediaType'
         '500':
           $ref: '#/components/responses/500Error'
-  /reports:
+  '/reports':
     get:
       summary: >-
         Ritorna le segnalazioni dell'ultimo mese
@@ -647,6 +646,119 @@ paths:
           $ref: '#/components/responses/406NotAcceptable'
         '500':
           $ref: '#/components/responses/500Error'
+  '/me/locations':
+    get:
+      summary: Lista di locations
+      tags:
+        - locations
+      description: ''
+      operationId: getUserLocations
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Location'
+              example:
+                data:
+                  - id: '1'
+                    coordinates:
+                      lat: 41.12
+                      lon: 41.1212
+                  - id: '7'
+                    coordinates:
+                      lat: 42.10211
+                      lon: 44.12312
+                  - id: '13'
+                    coordinates:
+                      lat: 32.122176
+                      lon: 39.12312
+        '401':  
+          $ref: '#/components/responses/401Unauthorized'
+        '406':
+          $ref: '#/components/responses/406NotAcceptable'
+        '500':
+          $ref: '#/components/responses/500Error'
+    delete:
+      summary: Cancella tutte le locations dell'utente
+      tags:
+        - locations
+      description: ''
+      operationId: deleteUserLocations
+      responses:
+        '204':
+          description: No content
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':  
+          $ref: '#/components/responses/401Unauthorized'
+        '500':
+          $ref: '#/components/responses/500Error'
+    post:
+      summary: Salvataggio di una location
+      tags:
+        - locations
+      description: ''
+      operationId: saveUserLocation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Location'
+            example:
+              radius: 40
+              coordinates:
+                lat: 41.198231
+                lon: 13.93291
+      responses:
+        '201':
+          description: Location created
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/Location'
+              example:
+                id: "1"
+                user_id: 2
+                radius: 40
+                coordinates:
+                  lat: 41.1221
+                  lon: 40.12312
+  '/me/locations/{id}':
+    parameters:
+     -  name: id
+        in: path
+        required: true
+        description: ID della location
+        schema:
+          type: string
+          example: 1
+    delete:
+      summary: Cancella la location specificata
+      tags:
+        - locations
+      description: ''
+      operationId: deleteUserLocation
+      responses:
+        '204':
+          description: No content
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':  
+          $ref: '#/components/responses/401Unauthorized'
+        '500':
+          $ref: '#/components/responses/500Error'
+      
 security:
   - bearerAuth: []
   - ApiKey: []
@@ -701,7 +813,7 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         name:
           type: string
         ind_group:
@@ -710,6 +822,21 @@ components:
           type: number
           format: double
           nullable: true
+    Location:
+      type: object
+      properties:
+        id:
+          type: string
+        radius:
+          type: integer
+        coordinates:
+          $ref: '#/components/schemas/Coordinate'
+      example:
+        id: "1"
+        radius: 40
+        coordinates:
+          lat: 41.12
+          lon: 42.121
     Model:
       type: object
       properties:

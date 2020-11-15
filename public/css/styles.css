@@ -1,3 +1,7 @@
+body, html {
+    height: 80%;
+}
+
 .project{
     margin-top: 1.2em;
 }
@@ -31,3 +35,15 @@
 .navbar {
     min-height: 80px;
 }
+
+#app{
+    height: 100%;
+}
+
+#home-carousel{
+    height: 100%;
+}
+
+/*#home-carousel img{*/
+/*    max-height: 40%;*/
+/*}*/

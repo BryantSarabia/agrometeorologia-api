@@ -1,9 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
+        <div class="row justify-content-center align-items-center h-75">
+            <div class="col-8">
                 <div class="card">
                     <div class="card-header bg-success text-white">My projects</div>
 
@@ -68,5 +67,4 @@
     {{--MODALS--}}
         @include('modals.delete_project')
         @include('modals.confirm_password')
-    </div>
 @endsection
