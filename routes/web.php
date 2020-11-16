@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 
@@ -29,4 +30,10 @@ Route::get('me/locations',function(){
     return view('pages.locations');
 })->name('me.locations')->middleware('auth');
 
+
+Route::get('email', function(){
+    $user = User::find(5);
+    $reports = \App\Models\Report::all();
+    return new \App\Mail\PestReports($user, $reports);
+});
 
