@@ -1,6 +1,9 @@
 <?php
 
+use App\Mail\PestReports;
+use App\Models\Report;
 use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 
@@ -37,3 +40,16 @@ Route::get('email', function(){
     return new \App\Mail\PestReports($user, $reports);
 });
 
+Route::get('prova', function(){
+    $users = User::all();
+    $users->each(function ($user) {
+        if ($user->locations->count() > 0) {
+            $reports = collect();
+            $user->locations->each(function ($location) use ($reports) {
+                $reports->push($location->findNearestReports($location->lat, $location->lon, $location->radius));
+            });
+
+            Mail::to($user)->send(new PestReports($user, $reports->first()->unique()));
+        }
+    });
+});

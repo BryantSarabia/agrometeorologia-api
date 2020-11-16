@@ -30,7 +30,7 @@ class Location extends Model
         ];
     }
 
-    public static function findNearestReports($lat, $lon, $radius, $from, $to)
+    public static function findNearestReports($lat, $lon, $radius)
     {
         $reports = Report::selectRaw("id, user_id,name, message, lat, lon ,
                          ( 6371 * acos( cos( radians(?) ) *
@@ -39,24 +39,13 @@ class Location extends Model
                            ) + sin( radians(?) ) *
                            sin( radians( lat ) ) )
                          ) AS distance,  created_at", [$lat, $lon, $lat])
-            ->where('created_at', '>=', $from)
-            ->where('created_at', '<=', $to)
+            ->where('created_at', '=', date('Y-m-d'))
             ->having("distance", "<", $radius)
             ->orderBy("distance", 'asc')
             ->get();
 
-        $array = collect();
-
-        if ($reports->count() > 0) {
-            $reports->each(function ($report) use ($array) {
-                $array->push($report->formatResponse($report->distance));
-            });
-            $array = Collection::wrap(['data' => $array]);
-
-        } else {
-            $array['data'] = [];
-        }
-        return $array;
-
+        return $reports;
     }
+
+
 }

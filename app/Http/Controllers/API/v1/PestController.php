@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\v1;
 
 use App\Http\Controllers\Controller;
+use App\Mail\PestReports;
 use App\Models\Project;
 use App\Models\Report;
 use App\Traits\ResponsesJSON;
@@ -10,6 +11,7 @@ use App\Traits\UtilityMethods;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class PestController extends Controller
 {
@@ -23,7 +25,8 @@ class PestController extends Controller
         $this->from = date('Y-m-d', strtotime($this->to . ' - 1 month'));
     }
 
-    public function index(){
+    public function index()
+    {
         $reports = Report::recent()->get();
 
         $array = collect();
@@ -37,23 +40,24 @@ class PestController extends Controller
         } else {
             $array['data'] = [];
         }
-        return response()->json($array,200,['Content-Type' => 'application/json']);
+        return response()->json($array, 200, ['Content-Type' => 'application/json']);
     }
 
-    public function getReports(Request $request){
+    public function getReports(Request $request)
+    {
 
         // Controllo che il parametro "lat" sia un double
-        if(!$this->validateCoordinate($request->query('lat'))){
+        if (!$this->validateCoordinate($request->query('lat'))) {
             return $this->ResponseError(400, 'Bad request', "Parameter lat must be a float number");
         }
 
         // Controllo che il parametro "lon" sia un double
-        if(!$this->validateCoordinate($request->query('lon'))){
+        if (!$this->validateCoordinate($request->query('lon'))) {
             return $this->ResponseError(400, 'Bad request', "Parameter lon must be a float number");
         }
 
         // Controllo che il parametro "radius" sia un int (Il raggio deve essere in KM)
-        if($this->validateID($request->query('radius')) || !$request->query('radius')){
+        if ($this->validateID($request->query('radius')) || !$request->query('radius')) {
             return $this->ResponseError(400, 'Bad request', "Parameter radius must be number");
         }
 
@@ -75,48 +79,49 @@ class PestController extends Controller
         // LOGICA DELLE DISTANZE
 
         $lat = $request->query('lat');
-        if(abs($lat) > 90){
+        if (abs($lat) > 90) {
             return $this->ResponseError(400, 'Bad request', 'Parameter lat must be a number between -90 and 90');
         }
 
         $lon = $request->query('lon');
-        if(abs($lon) > 180){
+        if (abs($lon) > 180) {
             return $this->ResponseError(400, 'Bad request', 'Parameter lon must be a number between -180 and 180');
         }
 
         $radius = $request->query('radius');
-        $reports = Report::findNearestReports($lat,$lon,$radius,$this->from,$this->to);
+        $reports = Report::findNearestReports($lat, $lon, $radius, $this->from, $this->to);
 
-        return response()->json($reports,200,['Content-Type' => 'application/json']);
+        return response()->json($reports, 200, ['Content-Type' => 'application/json']);
     }
 
-    public function report(Request $request){
+    public function report(Request $request)
+    {
 
 
-        if(!isset($request->coordinates['lat']) || !$this->validateCoordinate($request->coordinates['lat'])){
+        if (!isset($request->coordinates['lat']) || !$this->validateCoordinate($request->coordinates['lat'])) {
             return $this->ResponseError(400, 'Bad request', 'Parameter lat must be a float number');
         }
 
-        if(!isset($request->coordinates['lon']) || !$this->validateCoordinate($request->coordinates['lon'])){
+        if (!isset($request->coordinates['lon']) || !$this->validateCoordinate($request->coordinates['lon'])) {
             return $this->ResponseError(400, 'Bad request', 'Parameter lon must be a float number');
         }
 
-        if(!$request->name || !is_string($request->name)){
+        if (!$request->name || !is_string($request->name)) {
             return $this->ResponseError(400, 'Bad request', 'Name must be a string');
         }
 
 
-        if(!$request->message || !is_string($request->message)){
+        if (!$request->message || !is_string($request->message)) {
             return $this->ResponseError(400, 'Bad request', 'Message must be a string');
         }
 
         $lat = $request->coordinates['lat'];
-        if(abs($lat) > 90){
+        if (abs($lat) > 90) {
             return $this->ResponseError(400, 'Bad request', 'Parameter lat must be a number between -90 and 90');
         }
 
         $lon = $request->coordinates['lon'];
-        if(abs($lon) > 180){
+        if (abs($lon) > 180) {
             return $this->ResponseError(400, 'Bad request', 'Parameter lon must be a number between -180 and 180');
         }
 
@@ -130,8 +135,23 @@ class PestController extends Controller
             'lat' => $lat,
             'lon' => $lon,
             'created_at' => date('Y-m-d')
-            ]);
+        ]);
 
+        $locations = $report->findNearestLocations($report->lat, $report->lon);
+        if ($locations->count() > 0) {
+            $users = collect();
+            $reports = collect();
+            $reports->push($report);
+            $locations->each(function ($location) use ($users) {
+                $users->push($location->user);
+            });
+            $users = $users->unique();
+            $users->each(function ($user) use ($reports, $user_id) {
+                if ($user->id != $user_id) {
+                    Mail::to($user)->queue(new PestReports($user, $reports));
+                }
+            });
+        }
 
         return response()->json($report->formatResponse(), 201, ['Content-Type' => 'application/json']);
     }

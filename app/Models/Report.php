@@ -102,4 +102,21 @@ class Report extends Model
         return $array;
 
     }
+
+    public function findNearestLocations($lat, $lon)
+    {
+        $locations = Location::selectRaw("id, user_id, lat, lon , radius,
+                         ( 6371 * acos( cos( radians(?) ) *
+                           cos( radians( lat ) )
+                           * cos( radians( lon ) - radians(?)
+                           ) + sin( radians(?) ) *
+                           sin( radians( lat ) ) )
+                         ) AS distance", [$lat, $lon, $lat])
+            ->havingRaw("distance < radius")
+            ->orderBy("distance", 'asc')
+            ->get();
+
+        return $locations;
+
+    }
 }
