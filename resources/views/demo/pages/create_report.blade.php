@@ -18,13 +18,16 @@
                     <form name="report" id="pest-report">
                         <div class="form-group">
                             <label for="name">Pest:</label>
-                            <input type="text" name="name" class="form-control" autocomplete="off"/>
+                            <input type="text" name="name" class="form-control" autocomplete="off" placeholder="Pest name"/>
                         </div>
 
                         <div class="form-group">
                             <label for="message">Message:</label>
+                            <small class="text-muted">Info about the pest</small>
                             <textarea name="message" class="form-control"></textarea>
                         </div>
+
+                        <small>Click on the map to set the location</small>
 
                         {{--MAPPA--}}
                         @include('demo.includes.map')

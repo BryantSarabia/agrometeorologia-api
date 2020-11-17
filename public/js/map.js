@@ -14,7 +14,7 @@ function initMap() {
 
     if (window.location.pathname === "/demo/reports") {
         initReports(map);
-        initLocations(map);
+        initLocations(map, false);
     }
 
     if (window.location.pathname === "/demo/locations") {
@@ -192,7 +192,7 @@ function initReports(map) {
     })
 }
 
-function initLocations(map) {
+function initLocations(map, deletable = true) {
 
     $.ajax({
         url: "/api/v1/me/locations",
@@ -204,7 +204,7 @@ function initLocations(map) {
         dataType: "json",
         success: function (data) {
             $.each(data.data, function (index, value) {
-                addLocationMarker(value,map);
+                addLocationMarker(value, map, deletable);
             });
         },
         error: function (err) {
@@ -265,23 +265,9 @@ function addReportMarker(report, map) {
     });
 }
 
-function addLocationMarker(location, map) {
-    const contentString =
-        '<div id="content">' +
-        '<div id="siteNotice">' +
-        "</div>" +
-        '<div id="bodyContent">' +
-        "<p>(lat: " + location.coordinates.lat + " " + "lon: " + location.coordinates.lon + ")</p>" +
-        "</div>" +
-        '<div class="row justify-content-center">' +
-        '<div class="col-4">' +
-        '<a class="btn btn-sm btn-danger delete-location" data-id="'+ location.id+'" role="button" href="#">Delete</a>'
-        '</div>' +
-        '</div>' +
-        "</div>";
-    const infoWindow = new google.maps.InfoWindow({
-        content: contentString,
-    });
+function addLocationMarker(location, map, deletable) {
+
+
     const marker = new google.maps.Marker({
         position: {lat: location.coordinates.lat, lng: location.coordinates.lon},
         map: map,
@@ -290,9 +276,29 @@ function addLocationMarker(location, map) {
     });
     addCircle(marker, map, location.radius * 1000);
     locations.push(marker);
-    google.maps.event.addListener(marker, "click", () => {
-        infoWindow.open(map, marker);
-    });
+
+    if (deletable) {
+        const contentString =
+            '<div id="content">' +
+            '<div id="siteNotice">' +
+            "</div>" +
+            '<div id="bodyContent">' +
+            "<p>(lat: " + location.coordinates.lat + " " + "lon: " + location.coordinates.lon + ")</p>" +
+            "</div>" +
+            '<div class="row justify-content-center">' +
+            '<div class="col-4">' +
+            '<a class="btn btn-sm btn-danger delete-location" data-id="' + location.id + '" role="button" href="#">Delete</a>'
+        '</div>' +
+        '</div>' +
+        "</div>";
+        const infoWindow = new google.maps.InfoWindow({
+            content: contentString,
+        });
+
+        google.maps.event.addListener(marker, "click", () => {
+            infoWindow.open(map, marker);
+        });
+    }
 }
 
 function deleteMarkers() {
@@ -302,7 +308,7 @@ function deleteMarkers() {
     markers = [];
 }
 
-function deleteLocations(){
+function deleteLocations() {
     $.each(locations, function (index, value) {
         value.setMap(null);
     });
@@ -325,29 +331,29 @@ function showCircles() {
     setMapOnAll(circles, map);
 }
 
-function showLocations(){
-    setMapOnAll(locations,map);
+function showLocations() {
+    setMapOnAll(locations, map);
 }
 
-function hideCircles(){
-    $.each(circles, function(index,value){
-       value.setMap(null)
-    });
-}
-
-function hideLocations(){
-    $.each(locations, function(index,value){
+function hideCircles() {
+    $.each(circles, function (index, value) {
         value.setMap(null)
     });
 }
 
-function deleteLocations(){
+function hideLocations() {
+    $.each(locations, function (index, value) {
+        value.setMap(null)
+    });
+}
+
+function deleteLocations() {
     hideLocations();
     locations = [];
 }
 
-function setMapOnAll(array,map) {
-    $.each(array,function(index,value){
+function setMapOnAll(array, map) {
+    $.each(array, function (index, value) {
         value.setMap(map)
     });
 }

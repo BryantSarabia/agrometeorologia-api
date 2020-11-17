@@ -20,14 +20,14 @@
         <div class="col-3">
             <aside class="border border-success rounded shadow p-2">
 
-                <div class="row h-25">
+                <div class="row">
                     <div class="col text-center">
                         <h1>Get Reports</h1>
                         <small class="text-danger">Click on the map to set the desired location</small>
                     </div>
                 </div>
 
-                <div class="row h-25 align-items-center">
+                <div class="row">
                     <div class="col">
                         <form id="get-reports">
                             <div class="form-group row justify-content-between">
@@ -40,7 +40,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-group row justify-content-between">
+                            <div class="form-group row justify-content-between mb-4">
                                 <label class="col-1 col-form-label">To</label>
                                 <div class="col-10">
                                     <input type="text" name="to" class="form-control form-control-sm datepicker"
@@ -49,33 +49,40 @@
                                 </div>
                             </div>
 
-                            <div class="form-group row justify-content-between">
-                                <label class="col-1 col-form-label">Radius</label>
-                                <div class="col-10">
+                            <hr>
+
+                            <div class="form-group row mt-4">
+                                <div class="col">
+                                    <span><strong>Marker</strong>: Click on the map to set the marker and get the reports of that zone</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row justify-content-center">
+                                <label class="col-4 col-form-label pr-0">Marker radius</label>
+                                <div class="col-8 pl-0">
                                     <input name="radius" type="range" id="radius" class="form-control" min="1" max="100"
                                            value="20">
                                     <small class="form-text text-center">20 km</small>
-                                    <small class="form-text text-muted">The radius is expressed in
-                                        <strong>kilometers</strong></small>
+                                </div>
+                            </div>
+
+
+                            <div class="row justify-content-center mb-2">
+
+                                <div class="col-6 text-center">
+                                    <a id="hide-locations" class="btn btn-primary" role="button" href="#" data-toggle="tooltip" data-placement="top" title="Click here to hide your saved locations">Hide locations</a>
                                 </div>
 
                             </div>
 
-                            <div class="col text-center">
-                                <input type="submit" value="Get" class="btn btn-success">
+                            <div class="col text-center mt-4">
+                                <input type="submit" value="Get reports" class="btn btn-success">
                             </div>
                         </form>
                     </div>
 
                 </div>
 
-                <div class="row h-50 align-items-end justify-content-center">
-
-                    <div class="col text-center">
-                        <a id="hide-locations" class="btn btn-primary" role="button" href="#">Hide locations</a>
-                    </div>
-
-                </div>
 
             </aside>
         </div>
