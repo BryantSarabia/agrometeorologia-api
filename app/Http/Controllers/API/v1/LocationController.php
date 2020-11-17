@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\v1;
 use App\Http\Controllers\Controller;
 use App\Models\Location;
 use App\Models\Project;
+use App\Models\User;
 use App\Traits\ResponsesJSON;
 use App\Traits\UtilityMethods;
 use Illuminate\Http\Request;
@@ -15,9 +16,14 @@ class LocationController extends Controller
 
     use UtilityMethods, ResponsesJSON;
 
+    public function __construct()
+    {
+        $this->middleware('token');
+    }
+
     public function index(Request $request)
     {
-        $user = (Project::where('api_key', $request->bearerToken())->first())->user;
+        $user = User::where('token', $request->bearerToken())->first();
         $locations = $user->locations;
         $array = collect();
         if ($locations->count() > 0) {
@@ -57,7 +63,7 @@ class LocationController extends Controller
             return $this->ResponseError(400, 'Bad request', 'Parameter lon must be a number between -180 and 180');
         }
 
-        $user = (Project::where('api_key', $request->bearerToken())->first())->user;
+        $user = User::where('token', $request->bearerToken())->first();
 
 
         $location = Location::create([
@@ -72,7 +78,7 @@ class LocationController extends Controller
 
     public function delete(Request $request, $id)
     {
-        $user = (Project::where('api_key', $request->bearerToken())->first())->user;
+        $user = User::where('token', $request->bearerToken())->first();
 
         $location = Location::find($id);
 
@@ -90,7 +96,7 @@ class LocationController extends Controller
 
     public function deleteAll(Request $request)
     {
-        $user = (Project::where('api_key', $request->bearerToken())->first())->user;
+        $user = User::where('token', $request->bearerToken())->first();
         $locations = $user->locations;
 
         if ($locations->count() > 0) {

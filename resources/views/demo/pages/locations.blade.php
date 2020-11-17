@@ -1,4 +1,4 @@
-@extends('layouts/app')
+@extends('demo.layouts.app')
 @section('css')
     <link rel="stylesheet" type="text/css" href="{{ asset("css/map.css") }}"/>
     <style>
@@ -14,7 +14,6 @@
 @endsection
 
 @section('content')
-
     <div class="row mt-2 mb-2">
         <div class="col-3">
             <aside class="border border-success rounded shadow p-2">
@@ -64,7 +63,7 @@
         </div>
         <div class="col-9">
             {{--MAPPA--}}
-            @include('includes/map')
+            @include('demo.includes.map')
         </div>
     </div>
 

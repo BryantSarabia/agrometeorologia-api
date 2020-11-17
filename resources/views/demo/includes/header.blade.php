@@ -8,32 +8,24 @@
         <ul class="navbar-nav mr-auto">
 
             <li class="nav-item">
-                <a class="nav-link {{ Route::currentRouteName() == 'home' ? 'active' : '' }}" href="{{ route('home') }}">Home</a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link {{Route::currentRouteName() == 'api.specification' ? 'active' : ''}}" href="{{ route('api.specification') }}">API Specification</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{Route::currentRouteName() == 'pricing' ? 'active' : ''}}" href="#">Pricing</a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('demo.home') }}">Demo</a>
+                <a class="nav-link {{ Route::currentRouteName() == 'demo.home' ? 'active' : '' }}" href="{{ route('demo.home') }}">Home</a>
             </li>
 
             @auth
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Projects
+                        Reports
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                        <a class="dropdown-item" href="{{ route('project.create') }}">New Project</a>
-                        <a class="dropdown-item" href="{{ route('project.index') }}">My projects</a>
+                        <a class="dropdown-item" href="{{ route('demo.report.create') }}">Make Report</a>
+                        <a class="dropdown-item" href="{{ route('demo.report.index') }}">All reports</a>
                     </div>
                 </li>
 
+                <li class="nav-item">
+                    <a class="nav-link {{ Route::currentRouteName() == 'demo.locations' ? 'active' : '' }}" href="{{ route('demo.locations') }}">My Locations</a>
+                </li>
             @endauth
 
         </ul>
@@ -43,11 +35,12 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('logout') }}"
                        onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
+                                                     document.getElementById('logout-form').submit()
+                                                                  localStorage.removeItem('token');">
                         {{ __('Logout') }}
                     </a>
 
-                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                    <form id="logout-form" action="{{ route('demo.logout') }}" method="POST" class="d-none">
                         @csrf
                     </form>
                 </li>
@@ -55,10 +48,10 @@
             @endauth
             @guest
                 <li class="nav-item">
-                    <a class="nav-link {{ Route::currentRouteName() == 'login' ? 'active' : '' }}" href="{{ route('login') }}">Login</a>
+                    <a class="nav-link {{ Route::currentRouteName() == 'login' ? 'active' : '' }}" href="{{ route('demo.login') }}">Login</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ Route::currentRouteName() == 'register' ? 'active' : '' }}" href="{{ route('register') }}">Register</a>
+                    <a class="nav-link {{ Route::currentRouteName() == 'register' ? 'active' : '' }}" href="{{ route('demo.register') }}">Register</a>
                 </li>
             @endguest
         </ul>

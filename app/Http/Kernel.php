@@ -68,5 +68,6 @@ class Kernel extends HttpKernel
         'api_key' => \App\Http\Middleware\ApiKey::class,
         'content_type' =>  \App\Http\Middleware\contentTypeMiddleware::class,
         'accept' => \App\Http\Middleware\AcceptMiddleware::class,
+        'token' => \App\Http\Middleware\Token::class,
     ];
 }

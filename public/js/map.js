@@ -12,12 +12,12 @@ function initMap() {
         disableDefaultUI: true,
     });
 
-    if (window.location.pathname === "/reports") {
+    if (window.location.pathname === "/demo/reports") {
         initReports(map);
         initLocations(map);
     }
 
-    if (window.location.pathname === "/me/locations") {
+    if (window.location.pathname === "/demo/locations") {
         initLocations(map);
     }
 
@@ -25,7 +25,7 @@ function initMap() {
     initFullscreenControl(map);
     initCurrentPos(map);
     map.addListener('click', (e) => {
-        placeMarkerAndPanTo(e.latLng, map)
+        placeMarkerAndPanTo(e.latLng.toJSON(), map);
     });
 }
 
@@ -146,7 +146,6 @@ function placeMarkerAndPanTo(latLng, map) {
     if (marker !== null) {
         marker.setMap(null);
     }
-
     if (circle !== null) {
         circle.setMap(null);
     }
@@ -178,7 +177,7 @@ function initReports(map) {
         method: "GET",
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-            'Authorization': 'Bearer ' + localStorage.getItem('api_key')
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
         dataType: "json",
         success: function (data) {
@@ -200,7 +199,7 @@ function initLocations(map) {
         method: "GET",
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-            'Authorization': 'Bearer ' + localStorage.getItem('api_key')
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
         dataType: "json",
         success: function (data) {

@@ -36,11 +36,15 @@ Route::get('models','ModelController@getModels')->name('api.v1.models.getModels'
 Route::get('stations/{station_id}/models/{model_name}','ModelController@runModel')->name('api.v1.models.runModel');
 
 /********** Pests Tag ***********/
-Route::post('pests/reports','PestController@report')->name('api.v1.pests.report');
-Route::get('pests/reports','PestController@getReports')->name('api.v1.pests.getReports'); // Date le coordinate ed il raggio ritorna le segnalazioni d'interesse
-Route::get('reports','PestController@index')->name('api.v1.pest.reports.index'); // Ritorna tutte le segnalazioni nell'ultimo mese.
+Route::post('pests/reports','PestController@report')->name('api.v1.pests.report')->withoutMiddleware('api')->middleware('token');
+Route::get('pests/reports','PestController@getReports')->name('api.v1.pests.getReports')->withoutMiddleware('api');; // Date le coordinate ed il raggio ritorna le segnalazioni d'interesse
+Route::get('reports','PestController@index')->name('api.v1.pest.reports.index')->withoutMiddleware('api');; // Ritorna tutte le segnalazioni nell'ultimo mese.
 
-Route::get('me/locations', 'LocationController@index')->name('api.v1.me.locations.index');
-Route::delete('me/locations', 'LocationController@deleteAll')->name('api.v1.me.locations.deleteAll');
-Route::post('me/locations','LocationController@save')->name('api.v1.me.locations.save');
-Route::delete('me/locations/{id}', 'LocationController@delete')->name('api.v1.me.locations.delete');
+Route::get('me/locations', 'LocationController@index')->name('api.v1.me.locations.index')->withoutMiddleware('api');
+Route::delete('me/locations', 'LocationController@deleteAll')->name('api.v1.me.locations.deleteAll')->withoutMiddleware('api');
+Route::post('me/locations','LocationController@save')->name('api.v1.me.locations.save')->withoutMiddleware('api');
+Route::delete('me/locations/{id}', 'LocationController@delete')->name('api.v1.me.locations.delete')->withoutMiddleware('api');
+
+/********* Users tags *******/
+Route::post('login', 'UserController@authenticate')->name('api.v1.users.authenticate')->withoutMiddleware('api');
+Route::post('register', 'UserController@register')->name('api.v1.users.register')->withoutMiddleware('api');

@@ -11,5 +11,5 @@ You have new reports near to your locations!
 @endcomponent
 
 Thanks,<br>
-{{ config('app.name') }}
+{{ config('app.name') }} Team
 @endcomponent

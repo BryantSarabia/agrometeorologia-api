@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\PestReports;
 use App\Models\Project;
 use App\Models\Report;
+use App\Models\User;
 use App\Traits\ResponsesJSON;
 use App\Traits\UtilityMethods;
 use Illuminate\Http\Request;
@@ -126,10 +127,10 @@ class PestController extends Controller
         }
 
 
-        $user_id = (Project::where('api_key', $request->bearerToken())->first())->user->id;
+        $user = User::where('token', $request->bearerToken())->first();
 
         $report = Report::create([
-            'user_id' => $user_id,
+            'user_id' => $user->id,
             'name' => $request->name,
             'message' => $request->message,
             'lat' => $lat,

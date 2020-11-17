@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -51,5 +52,19 @@ class User extends Authenticatable
 
     public function locations(){
         return $this->hasMany('App\Models\Location');
+    }
+
+    public function generateToken(){
+        do{
+            $token = str::random(40);
+            $check = User::where('token',$token)->first();
+        }while($check);
+
+        $this->token = $token;
+        $this->save();
+    }
+
+    public function deleteToken(){
+
     }
 }

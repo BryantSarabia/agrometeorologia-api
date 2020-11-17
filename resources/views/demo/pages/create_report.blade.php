@@ -1,10 +1,9 @@
-@extends('layouts/app')
+@extends('demo.layouts.app')
 @section('css')
     <link rel="stylesheet" type="text/css" href="{{ asset("css/map.css") }}"/>
 @endsection
 
 @section('content')
-
 
     <div class="card mt-2 mb-1">
 
@@ -28,7 +27,7 @@
                         </div>
 
                         {{--MAPPA--}}
-                        @include('includes/map')
+                        @include('demo.includes.map')
 
                         <div class="text-center mt-2">
                             <button type="submit" class="btn btn-success">Send</button>
