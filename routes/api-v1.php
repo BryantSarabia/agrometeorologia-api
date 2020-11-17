@@ -48,3 +48,4 @@ Route::delete('me/locations/{id}', 'LocationController@delete')->name('api.v1.me
 /********* Users tags *******/
 Route::post('login', 'UserController@authenticate')->name('api.v1.users.authenticate')->withoutMiddleware('api');
 Route::post('register', 'UserController@register')->name('api.v1.users.register')->withoutMiddleware('api');
+Route::post('logout','UserController@logout')->name('api.v1.users.logout')->withoutMiddleware('api');

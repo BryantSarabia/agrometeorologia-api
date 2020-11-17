@@ -42,7 +42,7 @@ class UserController extends Controller
     public function register(Request $request){
 
         if(!$request->email){
-            return $this->ResponseError(400, 'Bad request', 'Missing Email');
+            return $this->ResponseError(400, 'Bad request', 'Missing email');
         }
 
         if(!filter_var($request->email, FILTER_VALIDATE_EMAIL)){
@@ -59,6 +59,10 @@ class UserController extends Controller
 
         if(!$request->password){
             return $this->ResponseError(400, 'Bad request', 'Missing password');
+        }
+
+        if(strlen($request->password) < 8){
+            return $this->ResponseError(400, 'Bad request', 'Password must contain at least 8 characters');
         }
 
         if(!$request->password_confirmation){

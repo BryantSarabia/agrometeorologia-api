@@ -26,7 +26,7 @@ class ReportTest extends TestCase
     {
         $this->withoutMiddleware();
         $token = str::random(40);
-        $user = User::factory()->hasProjects(1, ['api_key' => $token])->create();
+        $user = User::factory(['token' => $token])->create();
         $body = [
             'name' => 'Hydrocotyle',
             'message' => 'Consiglio di eliminare il prima possibile questo infestante',

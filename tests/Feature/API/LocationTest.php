@@ -17,7 +17,7 @@ class LocationTest extends TestCase
     {
         $this->withoutMiddleware();
         $token = str::random(30);
-        $user = User::factory()->hasProjects(1,['api_key' => $token])->create();
+        $user = User::factory(['token' => $token])->create();
         $body = [
             'coordinates' => [
                 'lat'=> 41.12,
@@ -53,7 +53,7 @@ class LocationTest extends TestCase
     {
         $this->withoutMiddleware();
         $token = str::random(30);
-        $user = User::factory()->hasProjects(1,['api_key' => $token])->create();
+        $user = User::factory(['token' => $token])->create();
         $body = [
             'coordinates' => [
                 'lon' => 41.12121,
@@ -84,7 +84,7 @@ class LocationTest extends TestCase
     {
         $this->withoutMiddleware();
         $token = str::random(30);
-        $user = User::factory()->hasProjects(1,['api_key' => $token])->create();
+        $user = User::factory(['token' => $token])->create();
         $body = [
             'coordinates' => [
                 'lat' => 91,
@@ -116,7 +116,7 @@ class LocationTest extends TestCase
     {
         $this->withoutMiddleware();
         $token = str::random(30);
-        $user = User::factory()->hasProjects(1,['api_key' => $token])->create();
+        $user = User::factory(['token' => $token])->create();
         $body = [
             'coordinates' => [
                 'lat' => -91,
@@ -148,7 +148,7 @@ class LocationTest extends TestCase
     {
         $this->withoutMiddleware();
         $token = str::random(30);
-        $user = User::factory()->hasProjects(1,['api_key' => $token])->create();
+        $user = User::factory(['token' => $token])->create();
         $body = [
             'coordinates' => [
                 'lat' => 41.12,
@@ -179,7 +179,7 @@ class LocationTest extends TestCase
     {
         $this->withoutMiddleware();
         $token = str::random(30);
-        $user = User::factory()->hasProjects(1,['api_key' => $token])->create();
+        $user = User::factory(['token' => $token])->create();
         $body = [
             'coordinates' => [
                 'lat' => 41.12,
@@ -211,7 +211,7 @@ class LocationTest extends TestCase
     {
         $this->withoutMiddleware();
         $token = str::random(30);
-        $user = User::factory()->hasProjects(1,['api_key' => $token])->create();
+        $user = User::factory(['token' => $token])->create();
         $body = [
             'coordinates' => [
                 'lat' => 41.12,
@@ -243,7 +243,7 @@ class LocationTest extends TestCase
     {
         $this->withoutMiddleware();
         $token = str::random(30);
-        $user = User::factory()->hasProjects(1,['api_key' => $token])->create();
+        $user = User::factory(['token' => $token])->create();
         $body = [
             'coordinates' => [
                 'lat' => 41.12,
@@ -275,7 +275,7 @@ class LocationTest extends TestCase
     {
         $this->withoutMiddleware();
         $token = str::random(30);
-        $user = User::factory()->hasProjects(1,['api_key' => $token])->create();
+        $user = User::factory(['token' => $token])->create();
         $body = [
             'coordinates' => [
                 'lat' => "invalid lat",
@@ -307,7 +307,7 @@ class LocationTest extends TestCase
     {
         $this->withoutMiddleware();
         $token = str::random(30);
-        $user = User::factory()->hasProjects(1,['api_key' => $token])->create();
+        $user = User::factory(['token' => $token])->create();
         $body = [
             'coordinates' => [
                 'lat' => 41.12,
@@ -338,7 +338,7 @@ class LocationTest extends TestCase
     {
         $this->withoutMiddleware();
         $token = str::random(30);
-        $user = User::factory()->hasProjects(1,['api_key' => $token])->create();
+        $user = User::factory(['token' => $token])->create();
         $body = [
             'coordinates' => [
                 'lat' => 41.12,
@@ -370,7 +370,7 @@ class LocationTest extends TestCase
         $this->withoutExceptionHandling();
         $this->withoutMiddleware();
         $token = str::random(30);
-        $user = User::factory()->hasProjects(1,['api_key' => $token])->create();
+        $user = User::factory(['token' => $token])->create();
 
         $location = Location::create([
             'user_id' => $user->id,
@@ -395,9 +395,9 @@ class LocationTest extends TestCase
         $this->withoutMiddleware();
 
         $token = str::random(30);
-        $user1 = User::factory()->hasProjects(1,['api_key' => $token])->create();
+        $user1 = User::factory(['token' => $token])->create();
         $token = str::random(30);
-        $user2 = User::factory()->hasProjects(1,['api_key' => $token])->create();
+        $user2 = User::factory(['token' => $token])->create();
 
         $location = Location::create([
             'user_id' => $user1->id,
@@ -426,7 +426,7 @@ class LocationTest extends TestCase
     public function test_user_can_delete_all_locations(){
         $this->withoutMiddleware();
         $token = str::random(30);
-        $user = User::factory()->hasProjects(1,['api_key' => $token])->create();
+        $user = User::factory(['token' => $token])->create();
 
         Location::create([
             'user_id' => $user->id,
@@ -456,7 +456,7 @@ class LocationTest extends TestCase
     public function test_user_cannot_delete_all_locations_if_he_does_not_have_locations(){
         $this->withoutMiddleware();
         $token = str::random(30);
-        $user = User::factory()->hasProjects(1,['api_key' => $token])->create();
+        $user = User::factory(['token' => $token])->create();
 
 
         $response = $this->deleteJson(

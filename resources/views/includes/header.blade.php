@@ -18,9 +18,7 @@
                 <a class="nav-link {{Route::currentRouteName() == 'pricing' ? 'active' : ''}}" href="#">Pricing</a>
             </li>
 
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('demo.home') }}">Demo</a>
-            </li>
+
 
             @auth
                 <li class="nav-item dropdown">
@@ -35,6 +33,10 @@
                 </li>
 
             @endauth
+
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('demo.home') }}">Demo</a>
+            </li>
 
         </ul>
 

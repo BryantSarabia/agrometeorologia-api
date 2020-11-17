@@ -27,7 +27,9 @@
                                             <div class="input-group-icon col-6 key_field">
                                                 <input type="text" class="form-control"
                                                        placeholder="xxxx-xxxx-xxxx-xxxx" disabled>
-                                                <div class="icon"><i class="fas fa-check-circle use_key d-none" data-toggle="tooltip" data-placement="top" title="Click here to use this api key when sending reports"></i></div>
+                                                @if($projects->count() > 0 )
+                                                    <div class="icon"><i class="fas fa-check-circle use_key d-none" data-toggle="tooltip" data-placement="top" title="Click here to use this api key when sending reports"></i></div>
+                                                @endif
                                             </div>
 
                                             <div class="col-2">
