@@ -10,7 +10,7 @@ info:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 servers:
-  - url: "http://localhost:8000/api/v1"
+  - url: 'http://localhost:8000/api/v1'
     variables: {}
     description: Main server
 tags:
@@ -26,6 +26,7 @@ tags:
     description: Stazioni meteorologiche
   - name: locations
     description: Locations salvate dall'utente
+  - name: utenza
 paths:
   '/stations':
     parameters:
@@ -61,22 +62,22 @@ paths:
                       $ref: '#/components/schemas/Station'
               example:
                 - data:
-                  - id: '1'
-                    name: AVEZZANO
-                    code: Avezza
-                    province: AQ
-                    disabled: 0
-                    coordinates:
-                      lat: '42.02531667'
-                      lon: '13.45065'
-                  - id: '2'
-                    name: SULMONA BUGNARA
-                    code: Sulmon
-                    province: AQ
-                    disabled: 0
-                    coordinates:
-                      lat: '42.04161111'
-                      lon: '13.88379167'
+                    - id: '1'
+                      name: AVEZZANO
+                      code: Avezza
+                      province: AQ
+                      disabled: 0
+                      coordinates:
+                        lat: '42.02531667'
+                        lon: '13.45065'
+                    - id: '2'
+                      name: SULMONA BUGNARA
+                      code: Sulmon
+                      province: AQ
+                      disabled: 0
+                      coordinates:
+                        lat: '42.04161111'
+                        lon: '13.88379167'
         '400':
           $ref: '#/components/responses/400BadRequest'
         '401':
@@ -108,15 +109,15 @@ paths:
                       data:
                         $ref: '#/components/schemas/Station'
               example:
-               data:
-                id: '1'
-                name: AVEZZANO
-                code: Avezza
-                province: AQ
-                disabled: 0
-                coordinates:
-                  lat: '42.02531667'
-                  lon: '13.45065'
+                data:
+                  id: '1'
+                  name: AVEZZANO
+                  code: Avezza
+                  province: AQ
+                  disabled: 0
+                  coordinates:
+                    lat: '42.02531667'
+                    lon: '13.45065'
         '400':
           $ref: '#/components/responses/400BadRequest'
         '401':
@@ -303,8 +304,8 @@ paths:
               example:
                 data:
                   id: 8
-                  name: 'Bilancio idrico-climatico (mm)'
-                  ind_group: 'Bilancio Idrico'
+                  name: Bilancio idrico-climatico (mm)
+                  ind_group: Bilancio Idrico
         '400':
           $ref: '#/components/responses/400BadRequest'
         '401':
@@ -439,7 +440,7 @@ paths:
                       $ref: '#/components/schemas/Weather'
               example:
                 data:
-                  - id_station : "1"
+                  - id_station: '1'
                     datetime: '2020-10-10'
                     tmin: 16.8
                     tmax: 25
@@ -453,7 +454,7 @@ paths:
                     wdir: null
                     ravg: null
                     rsum: null
-                  - id_station: "1"
+                  - id_station: '1'
                     datetime: '2020-10-11'
                     tmin: 15.8
                     tmax: 24
@@ -527,19 +528,19 @@ paths:
                       $ref: '#/components/schemas/Pest'
               example:
                 data:
-                  - user_id: "21"
-                    report_id: "1"
-                    name: 'Hydrocotyle'
-                    message: 'Vi consiglio di utilizzare X prodotto'
+                  - user_id: '21'
+                    report_id: '1'
+                    name: Hydrocotyle
+                    message: Vi consiglio di utilizzare X prodotto
                     distance: 51.0121
                     coordinates:
                       lat: 43.1231212
                       lon: 10.1231242
                     created_at: '2020-10-10'
-                  - user_id: "41"
-                    report_id: "2"
-                    name: 'Plantago'
-                    message: 'Proteggete le vostre colture o saranno in pericolo'
+                  - user_id: '41'
+                    report_id: '2'
+                    name: Plantago
+                    message: Proteggete le vostre colture o saranno in pericolo
                     distance: 51.0121
                     coordinates:
                       lat: 43.1231212
@@ -566,9 +567,9 @@ paths:
             schema:
               $ref: '#/components/schemas/Pest'
             example:
-              user_id: "21"
-              name: 'Hydrocotyle'
-              message: 'Consiglio di eliminare il prima possibile questo infestante'
+              user_id: '21'
+              name: Hydrocotyle
+              message: Consiglio di eliminare il prima possibile questo infestante
               coordinates:
                 lat: 41.198231
                 lon: 13.93291
@@ -580,10 +581,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/Pest'
               example:
-                user_id: "21"
-                report_id: "1"
+                user_id: '21'
+                report_id: '1'
                 name: Hydrocotyle
-                message: 'Consiglio di eliminare il prima possibile questo infestante'
+                message: Consiglio di eliminare il prima possibile questo infestante
                 coordinates:
                   lat: 41.198231
                   lon: 13.93291
@@ -600,8 +601,7 @@ paths:
           $ref: '#/components/responses/500Error'
   '/reports':
     get:
-      summary: >-
-        Ritorna le segnalazioni dell'ultimo mese
+      summary: Ritorna le segnalazioni dell'ultimo mese
       tags:
         - infestanti
       description: ''
@@ -620,19 +620,19 @@ paths:
                       $ref: '#/components/schemas/Pest'
               example:
                 data:
-                  - user_id: "21"
-                    report_id: "1"
-                    name: 'Hydrocotyle'
-                    message: 'Vi consiglio di utilizzare X prodotto'
+                  - user_id: '21'
+                    report_id: '1'
+                    name: Hydrocotyle
+                    message: Vi consiglio di utilizzare X prodotto
                     distance: 51.0121
                     coordinates:
                       lat: 43.1231212
                       lon: 10.1231242
                     created_at: '2020-10-10'
-                  - user_id: "41"
-                    report_id: "2"
-                    name: 'Plantago'
-                    message: 'Proteggete le vostre colture o saranno in pericolo'
+                  - user_id: '41'
+                    report_id: '2'
+                    name: Plantago
+                    message: Proteggete le vostre colture o saranno in pericolo
                     distance: 51.0121
                     coordinates:
                       lat: 43.1231212
@@ -682,7 +682,7 @@ paths:
                     coordinates:
                       lat: 32.122176
                       lon: 39.12312
-        '401':  
+        '401':
           $ref: '#/components/responses/401Unauthorized'
         '406':
           $ref: '#/components/responses/406NotAcceptable'
@@ -699,7 +699,7 @@ paths:
           description: No content
         '400':
           $ref: '#/components/responses/400BadRequest'
-        '401':  
+        '401':
           $ref: '#/components/responses/401Unauthorized'
         '500':
           $ref: '#/components/responses/500Error'
@@ -725,10 +725,10 @@ paths:
           description: Location created
           content:
             application/json:
-              schema: 
+              schema:
                 $ref: '#/components/schemas/Location'
               example:
-                id: "1"
+                id: '1'
                 user_id: 2
                 radius: 40
                 coordinates:
@@ -736,7 +736,7 @@ paths:
                   lon: 40.12312
   '/me/locations/{id}':
     parameters:
-     -  name: id
+      - name: id
         in: path
         required: true
         description: ID della location
@@ -754,11 +754,116 @@ paths:
           description: No content
         '400':
           $ref: '#/components/responses/400BadRequest'
-        '401':  
+        '401':
           $ref: '#/components/responses/401Unauthorized'
         '500':
           $ref: '#/components/responses/500Error'
-      
+  '/login':
+    post:
+      summary: Login utenza
+      tags:
+        - utenza
+      description: ''
+      operationId: userLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+            example:
+              email: 'prova@prova.it'
+              password: 'password'
+      responses:
+        '201':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+              example:
+                token: 'LZkfR330Nf2lhYprfgmUkiFzJeGEnUU9UeL1PWfO'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '406':
+          $ref: '#/components/responses/406NotAcceptable'
+        '415':
+          $ref: '#/components/responses/415MediaType'
+        '500':
+          $ref: '#/components/responses/500Error'
+  '/register':
+    post:
+      summary: Registrazione utente
+      tags:
+        - utenza
+      description: ''
+      operationId: userRegister
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                name:
+                  type: string
+                password:
+                  type: string
+                password_confirmation:
+                  type: string
+            example:
+              email: 'prova@prova.it'
+              name: 'prova'
+              password: 'password'
+              password_confirmation: 'password'
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+              example:
+                token: 'LZkfR330Nf2lhYprfgmUkiFzJeGEnUU9UeL1PWfO'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '406':
+          $ref: '#/components/responses/406NotAcceptable'
+        '415':
+          $ref: '#/components/responses/415MediaType'
+        '500':
+          $ref: '#/components/responses/500Error'
+  '/logout':
+    post:
+      summary: Logout utente
+      tags:
+        - utenza
+      description: ''
+      operationId: userLogout
+      responses:
+        '204':
+          description: not content
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '406':
+          $ref: '#/components/responses/406NotAcceptable'
+        '415':
+          $ref: '#/components/responses/415MediaType'
+        '500':
+          $ref: '#/components/responses/500Error'
 security:
   - bearerAuth: []
   - ApiKey: []
@@ -832,7 +937,7 @@ components:
         coordinates:
           $ref: '#/components/schemas/Coordinate'
       example:
-        id: "1"
+        id: '1'
         radius: 40
         coordinates:
           lat: 41.12
@@ -939,6 +1044,11 @@ components:
           type: string
           format: date-time
           nullable: true
+    Token:
+      type: object
+      properties:
+        token:
+          type: string
     Error:
       type: object
       properties:
@@ -973,7 +1083,7 @@ components:
       schema:
         type: string
         format: date-time
-        default: 'Last 30 days'
+        default: Last 30 days
         example: '2020-10-10'
     To:
       name: to
@@ -983,7 +1093,7 @@ components:
       schema:
         type: string
         format: date-time
-        default: 'Current day'
+        default: Current day
         example: '2020-10-15'
   responses:
     500Error:

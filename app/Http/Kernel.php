@@ -43,6 +43,8 @@ class Kernel extends HttpKernel
         'api' => [
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             'api_key',
+            'limit',
+            'throttle:30',
             // 'accept',
            // 'content_type'
         ],
@@ -69,5 +71,6 @@ class Kernel extends HttpKernel
         'content_type' =>  \App\Http\Middleware\contentTypeMiddleware::class,
         'accept' => \App\Http\Middleware\AcceptMiddleware::class,
         'token' => \App\Http\Middleware\Token::class,
+        'limit' => \App\Http\Middleware\CheckRequestLimit::class,
     ];
 }

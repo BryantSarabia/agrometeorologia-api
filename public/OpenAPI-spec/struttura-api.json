@@ -44,6 +44,9 @@
     {
       "name": "locations",
       "description": "Locations salvate dall'utente"
+    },
+    {
+      "name": "utenza"
     }
   ],
   "paths": {
@@ -1162,6 +1165,168 @@
           }
         }
       }
+    },
+    "/login": {
+      "post": {
+        "summary": "Login utenza",
+        "tags": [
+          "utenza"
+        ],
+        "description": "",
+        "operationId": "userLogin",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "email": "prova@prova.it",
+                "password": "password"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                },
+                "example": {
+                  "token": "LZkfR330Nf2lhYprfgmUkiFzJeGEnUU9UeL1PWfO"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/401Unauthorized"
+          },
+          "406": {
+            "$ref": "#/components/responses/406NotAcceptable"
+          },
+          "415": {
+            "$ref": "#/components/responses/415MediaType"
+          },
+          "500": {
+            "$ref": "#/components/responses/500Error"
+          }
+        }
+      }
+    },
+    "/register": {
+      "post": {
+        "summary": "Registrazione utente",
+        "tags": [
+          "utenza"
+        ],
+        "description": "",
+        "operationId": "userRegister",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "password_confirmation": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "email": "prova@prova.it",
+                "name": "prova",
+                "password": "password",
+                "password_confirmation": "password"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                },
+                "example": {
+                  "token": "LZkfR330Nf2lhYprfgmUkiFzJeGEnUU9UeL1PWfO"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/401Unauthorized"
+          },
+          "406": {
+            "$ref": "#/components/responses/406NotAcceptable"
+          },
+          "415": {
+            "$ref": "#/components/responses/415MediaType"
+          },
+          "500": {
+            "$ref": "#/components/responses/500Error"
+          }
+        }
+      }
+    },
+    "/logout": {
+      "post": {
+        "summary": "Logout utente",
+        "tags": [
+          "utenza"
+        ],
+        "description": "",
+        "operationId": "userLogout",
+        "responses": {
+          "204": {
+            "description": "not content"
+          },
+          "400": {
+            "$ref": "#/components/responses/400BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/401Unauthorized"
+          },
+          "406": {
+            "$ref": "#/components/responses/406NotAcceptable"
+          },
+          "415": {
+            "$ref": "#/components/responses/415MediaType"
+          },
+          "500": {
+            "$ref": "#/components/responses/500Error"
+          }
+        }
+      }
     }
   },
   "security": [
@@ -1419,6 +1584,14 @@
             "type": "string",
             "format": "date-time",
             "nullable": true
+          }
+        }
+      },
+      "Token": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
           }
         }
       },
