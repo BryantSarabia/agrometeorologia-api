@@ -12,7 +12,6 @@ use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 class CheckRequestLimit
 {
     use ResponsesJSON;
-    const LIMIT = 15000;
     /**
      * Handle an incoming request.
      *
@@ -24,12 +23,8 @@ class CheckRequestLimit
     {
 
         $project = Project::where('api_key', $request->bearerToken())->first();
-        $requests = $project->requests->where('date', '>=', date('Y-m-01'))->where('date','<=',date('Y-m-t'));
-        $count = $requests->reduce(function ($carry, $request){
-            return $carry + $request->number;
-        });
-
-        if ($count <= self::LIMIT) {
+        $count = $project->requests->where('date', '>=', date('Y-m-01'))->where('date','<=',date('Y-m-t'))->sum('number');
+        if ($count <= $project->getLicenseRateLimit()) {
             return $next($request);
         }
 

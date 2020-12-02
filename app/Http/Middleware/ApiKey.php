@@ -38,6 +38,8 @@ class ApiKey
     }
 
     public function terminate($request, $response){
-        LogRequestJob::dispatch( '/' . $request->path(), $request->bearerToken());
+        if($request->bearerToken()) {
+            LogRequestJob::dispatch('/' . $request->path(), $request->bearerToken());
+        }
     }
 }

@@ -18,6 +18,7 @@ class CreateProjectsTable extends Migration
             $table->foreignId('user_id');
             $table->string('name');
             $table->string('api_key',255)->unique()->nullable();
+            $table->enum('license',['basic','pro']);
             $table->timestamps();
             $table->softDeletes();
         });

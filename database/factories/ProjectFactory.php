@@ -29,6 +29,7 @@ class ProjectFactory extends Factory
         return [
             'user_id' => User::factory(),
             'name' => $this->faker->sentence,
+            'license' => $this->faker->randomElement(["basic", "pro"]),
             'api_key' => str::random(30),
         ];
     }
