@@ -48,6 +48,11 @@ class Kernel extends HttpKernel
             // 'accept',
            // 'content_type'
         ],
+
+        'meta-api' => [
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            // 'token',
+        ]
     ];
 
     /**
