@@ -14,6 +14,7 @@ class MetaController extends Controller
     public function save(Request $request)
     {
 
+        // Controllo se esistono le proprietà nelle configurazioni
         $conf = $request->configuration;
         if (!key_exists('group', $conf)) {
             return "missing group";
@@ -23,6 +24,7 @@ class MetaController extends Controller
             return "missing operations";
         }
 
+        // Controllo le proprieta di ogni source
         foreach ($conf['operations'] as $key => $operation) {
             if (!key_exists('sources', $conf['operations'][$key]) || !key_exists('result', $conf['operations'][$key])) {
                 return "missing parameters at " . $key;
@@ -32,9 +34,9 @@ class MetaController extends Controller
                     return "invalid source url";
                 }
 
-                if(!is_string($source['description'])){
+                if (!is_string($source['description'])) {
                     return "description must be a string";
-                } elseif(!filter_var($source['required'], FILTER_VALIDATE_BOOL)){
+                } elseif (!filter_var($source['required'], FILTER_VALIDATE_BOOL)) {
                     return "source required must be a boolean";
                 }
             }
@@ -106,21 +108,31 @@ class MetaController extends Controller
             $url = $source['urlTemplate'];
             eval("\$url = \"$url\";"); // valuto la url
             if (filter_var($url, FILTER_VALIDATE_URL)) { // mi assicuro che la url valutata sia sempre una url valida
-                try{
+                try {
                     $response = Http::timeout(5)->get($url);
-                    if(!$response->ok() && $source['required']){
+                    if (!$response->ok() && $source['required']) {
                         return $key . " failed";
                     }
-                    $results[$key] = $response->json();
-                } catch (ConnectionException $e){
+                    if (key_exists('data', $response->json())) {
+                        $results[$key] = $response->json()['data'];
+                    } else {
+                        $results[$key] = $response->json();
+                    }
+                } catch (ConnectionException $e) {
                     return $key . " failed";
                 }
 
             }
         }
         return response()->json([
-           $results
+            $results
         ]);
+    }
+
+    public function delete(MetaApiConfiguration $configuration)
+    {
+        $configuration->delete();
+        return redirect()->route('admin.configuration.all');
     }
 
     public function validateType($type, $value)

@@ -1,0 +1,104 @@
+@import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
+
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #fafafa;
+}
+
+p {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.1em;
+    font-weight: 300;
+    line-height: 1.7em;
+    color: #999;
+}
+
+a, a:hover, a:focus {
+    color: inherit;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+#sidebar {
+    /* don't forget to add all the previously mentioned styles here too */
+    background: #8080ff;
+    color: #fff;
+    transition: all 0.3s;
+    height: 100%;
+    width: 100%;
+}
+
+#sidebar .sidebar-header {
+    padding: 20px;
+    background: #6666ff;
+}
+
+#sidebar ul.components {
+    padding: 20px 0;
+    /*border-bottom: 1px solid #47748b;*/
+}
+
+#sidebar ul p {
+    color: #fff;
+    padding: 10px;
+}
+
+#sidebar ul li a {
+    padding: 10px;
+    font-size: 1.1em;
+    display: block;
+}
+#sidebar ul li a:hover, .main-form-button:hover {
+    color: #7386D5;
+    background: #fff;
+}
+
+#sidebar ul li.active > a, a[aria-expanded="true"] {
+    color: #fff;
+    background: #6666ff;
+}
+ul ul a {
+    font-size: 0.9em !important;
+    padding-left: 30px !important;
+    background: #6666ff;
+}
+
+.main-content{
+    background: #f9fbfd;
+}
+
+.main-content-title{
+    font-size: 2.5em;
+    color: #fff;
+}
+
+.main-content-box{
+    background: #8080ff;
+    border-radius: 20px;
+    height: 100%;
+    color: #fff;
+}
+
+hr{
+    background: #fff;
+}
+
+.main-content-form{
+    padding: 2em;
+    height: 100%;
+}
+
+.main-form-button{
+    background: #6666ff;
+    color:white;
+}
+
+.main-content-table{
+    background: #f9fbfd;
+}
+
+.table td, .table th {
+    text-align: center;
+}
+

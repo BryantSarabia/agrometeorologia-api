@@ -8,35 +8,43 @@
         <ul class="navbar-nav mr-auto">
 
             <li class="nav-item">
-                <a class="nav-link {{ Route::currentRouteName() == 'home' ? 'active' : '' }}" href="{{ route('home') }}">Home</a>
+                <a class="nav-link {{ Route::currentRouteName() == 'home' ? 'active' : '' }}"
+                   href="{{ route('home') }}">Home</a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link {{Route::currentRouteName() == 'api.specification' ? 'active' : ''}}" href="{{ route('api.specification') }}">API Specification</a>
+                <a class="nav-link {{Route::currentRouteName() == 'api.specification' ? 'active' : ''}}"
+                   href="{{ route('api.specification') }}">API Specification</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link {{Route::currentRouteName() == 'pricing' ? 'active' : ''}}" href="#">Pricing</a>
             </li>
 
 
-
             @auth
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
-                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Projects
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                        <a class="dropdown-item" href="{{ route('project.create') }}">New Project</a>
-                        <a class="dropdown-item" href="{{ route('project.index') }}">My projects</a>
-                    </div>
-                </li>
-
+                @if(Auth::user()->isDeveloper() || Auth::user()->isAdmin())
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Projects
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <a class="dropdown-item" href="{{ route('project.create') }}">New Project</a>
+                            <a class="dropdown-item" href="{{ route('project.index') }}">My projects</a>
+                        </div>
+                    </li>
+                @endif
             @endauth
 
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('demo.home') }}">Demo</a>
             </li>
+
+            @if(Auth::user()->isAdmin())
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('admin.home') }}">Dashboard</a>
+                </li>
+            @endif
 
         </ul>
 
@@ -57,10 +65,12 @@
             @endauth
             @guest
                 <li class="nav-item">
-                    <a class="nav-link {{ Route::currentRouteName() == 'login' ? 'active' : '' }}" href="{{ route('login') }}">Login</a>
+                    <a class="nav-link {{ Route::currentRouteName() == 'login' ? 'active' : '' }}"
+                       href="{{ route('login') }}">Login</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ Route::currentRouteName() == 'register' ? 'active' : '' }}" href="{{ route('register') }}">Register</a>
+                    <a class="nav-link {{ Route::currentRouteName() == 'register' ? 'active' : '' }}"
+                       href="{{ route('register') }}">Register</a>
                 </li>
             @endguest
         </ul>

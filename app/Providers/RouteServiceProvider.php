@@ -56,6 +56,10 @@ class RouteServiceProvider extends ServiceProvider
                 ->middleware('meta-api')
                 ->namespace($this->namespace . '\\MetaAPI')
                 ->group(base_path('routes/meta-api.php'));
+
+            Route::prefix('dashboard')
+                ->namespace($this->namespace . '\\Admin')
+                ->group(base_path('routes/admin.php'));
         });
     }
 

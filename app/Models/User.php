@@ -64,7 +64,11 @@ class User extends Authenticatable
         $this->save();
     }
 
-    public function deleteToken(){
+    public function isAdmin(){
+        return $this->type === 'admin';
+    }
 
+    public function isDeveloper(){
+        return $this->type === 'developer';
     }
 }

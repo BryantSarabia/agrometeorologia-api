@@ -51,7 +51,7 @@ class Kernel extends HttpKernel
 
         'meta-api' => [
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            // 'token',
+            'isAdmin',
         ]
     ];
 
@@ -77,5 +77,7 @@ class Kernel extends HttpKernel
         'accept' => \App\Http\Middleware\AcceptMiddleware::class,
         'token' => \App\Http\Middleware\Token::class,
         'limit' => \App\Http\Middleware\CheckRequestLimit::class,
+        'isAdmin' => \App\Http\Middleware\IsAdmin::class,
+        'dashboard' => \App\Http\Middleware\Dashboard::class,
     ];
 }
