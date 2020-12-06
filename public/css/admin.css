@@ -4,6 +4,7 @@
 body {
     font-family: 'Poppins', sans-serif;
     background: #fafafa;
+    background-image: url("../img/cubes.png");
 }
 
 p {
@@ -49,6 +50,7 @@ a, a:hover, a:focus {
     font-size: 1.1em;
     display: block;
 }
+
 #sidebar ul li a:hover, .main-form-button:hover {
     color: #7386D5;
     background: #fff;
@@ -58,47 +60,79 @@ a, a:hover, a:focus {
     color: #fff;
     background: #6666ff;
 }
+
 ul ul a {
     font-size: 0.9em !important;
     padding-left: 30px !important;
     background: #6666ff;
 }
 
-.main-content{
+.main-content, .main-content-upload {
     background: #f9fbfd;
+    border-radius: 20px;
 }
 
-.main-content-title{
+.main-content-title {
     font-size: 2.5em;
     color: #fff;
 }
 
-.main-content-box{
+.main-content-box {
     background: #8080ff;
     border-radius: 20px;
     height: 100%;
     color: #fff;
 }
 
-hr{
+hr {
     background: #fff;
 }
 
-.main-content-form{
+.main-content-form {
     padding: 2em;
     height: 100%;
 }
 
-.main-form-button{
+.main-form-button {
     background: #6666ff;
-    color:white;
+    color: white;
 }
 
-.main-content-table{
+.main-content-table {
     background: #f9fbfd;
 }
 
 .table td, .table th {
     text-align: center;
 }
+
+
+
+.files{
+    position: relative;
+
+}
+
+.files input{
+    color: black;
+    border: 1px dashed #6666ff;
+    border-radius: 20px;
+    padding: 15% 82px 15% 5%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.files input::before{
+    content: "Drag it here or ";
+    color: #6666ff;
+    font-weight: 600;
+}
+
+.disabled:hover{
+    cursor: no-drop;
+    background: gray;
+    color: white;
+}
+
+
 

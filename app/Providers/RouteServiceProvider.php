@@ -53,7 +53,6 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('routes/demo.php'));
 
             Route::prefix('meta-api')
-                ->middleware('meta-api')
                 ->namespace($this->namespace . '\\MetaAPI')
                 ->group(base_path('routes/meta-api.php'));
 

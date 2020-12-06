@@ -19,6 +19,7 @@ class IsAdmin
      */
     public function handle(Request $request, Closure $next)
     {
+
         $token = $request->bearerToken();
 
         if($token == null){

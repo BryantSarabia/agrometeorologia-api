@@ -40,12 +40,13 @@
                 <a class="nav-link" href="{{ route('demo.home') }}">Demo</a>
             </li>
 
-            @if(Auth::user()->isAdmin())
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('admin.home') }}">Dashboard</a>
-                </li>
-            @endif
-
+            @auth
+                @if(Auth::user()->isAdmin())
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.home') }}">Dashboard</a>
+                    </li>
+                @endif
+            @endauth
         </ul>
 
         <ul class="navbar-nav ml-auto">

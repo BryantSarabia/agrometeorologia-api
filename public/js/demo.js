@@ -102,7 +102,6 @@ $(document).on('submit', '#pest-report', function (event) {
             window.location.replace(window.location.origin + "/demo/reports")
         },
         error: function (msg) {
-            console.log(msg);
             Toast.fire({
                 icon: "warning",
                 title: msg.responseJSON.title,
