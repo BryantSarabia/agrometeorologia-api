@@ -23,22 +23,27 @@ class MetaController extends Controller
     public function save(Request $request)
     {
 
-        if($request->header('Content-Type') === 'form-data'){
-            $validator = $request->validate([
-                'configuration_file' => 'required|max:4096'
-            ]);
+        if (strpos($request->header('Content-Type'), 'multipart/form-data') !== false) {
+            $rules = ['configuration_file' => 'required|max:4096'];
+            $validator = \Validator::make($request->all(), $rules);
 
+            if ($validator->fails()) {
+                return $this->ResponseError(422, 'Validation error', $validator->getMessageBag()->toArray()['configuration_file'][0]);
+            }
             $file = $request->file('configuration_file');
             if ($file->getClientMimeType() !== 'application/json') {
-                return redirect()->back()->withErrors(['file_error' => 'The file must be a JSON file']);
+                return $this->ResponseError(400, 'Bad request', 'The file must be a JSON file');
             }
 
             $file_content = file_get_contents($file);
             $conf = json_decode($file_content, true);
 
-        } elseif($request->header('Content-Type') === "application/json"){
+        } elseif ($request->header('Content-Type') === "application/json") {
             // Controllo se esistono le proprietà nelle configurazioni
             $conf = $request->all();
+
+        } else {
+            return $this->ResponseError(400, 'Bad request', 'Missing configuration');
         }
 
 
@@ -59,6 +64,32 @@ class MetaController extends Controller
             if (!key_exists('sources', $conf['operations'][$key]) || !key_exists('result', $conf['operations'][$key])) {
                 return $this->ResponseError(400, 'Bad request', "Missing parameters at {$key}");
             }
+
+            if (key_exists('params', $operation)) {
+                foreach ($operation['params'] as $key => $param) {
+                    if (!key_exists('required', $param)) {
+                        return $this->ResponseError(400, 'Bad request', "Missing required parameter at {$key}");
+                    }
+
+                    if (!key_exists('type', $param)) {
+                        return $this->ResponseError(400, 'Bad request', "Missing type parameter at {$key}");
+                    }
+
+                    if(key_exists('description',$param)){
+                        if(!$this->validateType("string", $param['description'])){
+                            return $this->ResponseError(400,'Bad request', "Description parameter must be a string at {$key}");
+                        }
+                    }
+
+                    if (!$this->validateType("boolean", $param['required'])) {
+                        return $this->ResponseError(400, 'Bad request', "Required paramter must be a boolean at {$key}");
+                    }
+
+                    if(!$this->validateType("string", $param['type'])){
+                        return $this->ResponseError(400,'Bad request', "Type parameter must be a string at {$key}");
+                    }
+                }
+            }
             foreach ($operation['sources'] as $key => $source) {
                 if (!filter_var($source['urlTemplate'], FILTER_VALIDATE_URL)) {
                     return $this->ResponseError(400, 'Bad request', "Invalid source url at {$key}");
@@ -67,7 +98,7 @@ class MetaController extends Controller
                 if (!is_string($source['description'])) {
                     return $this->ResponseError(400, 'Bad request', "Description must be a string at {$key}");
                 } elseif (!filter_var($source['required'], FILTER_VALIDATE_BOOL)) {
-                    return $this->ResponseError(400, 'Bad request', "required must be a boolean at {$key}");
+                    return $this->ResponseError(400, 'Bad request', "Required must be a boolean at {$key}");
                 }
             }
         }
@@ -82,8 +113,7 @@ class MetaController extends Controller
         $obj = MetaApiConfiguration::create([
             'configuration' => json_encode($conf),
         ]);
-
-        return response()->json(['data' => $obj],201,['Content-Type' => 'application/json']);
+        return response()->json(['data' => $obj], 201, ['Content-Type' => 'application/json']);
 
     }
 
@@ -176,6 +206,24 @@ class MetaController extends Controller
 
         $configuration->delete();
         return response()->json([], 204);
+    }
+
+    public function toggle($id)
+    {
+
+        $configuration = MetaApiConfiguration::find($id);
+
+        if (!$configuration) {
+            return $this->ResponseError(404, 'Not found', 'Configuration not found');
+        }
+
+        if ($configuration->enabled) {
+            $configuration->enabled = false;
+        } else {
+            $configuration->enabled = true;
+        }
+
+        $configuration->save();
     }
 
     public function validateType($type, $value)

@@ -458,3 +458,35 @@ function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+$(document).on('click', '#login-submit', function(event){
+    event.preventDefault();
+    let form = $('#login-form');
+    if (!validateFormReport(form)) {
+        return false;
+    }
+    let data = formSerialize(form);
+    $.ajax({
+        method: "POST",
+        headers: {
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+            }
+        },
+        url: "/api/v1/login",
+        data: JSON.stringify(data),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+            localStorage.setItem('token', data.token);
+            form.submit();
+        },
+        error: function(msg){
+            Toast.fire({
+                icon: "warning",
+                title: msg.responseJSON.title,
+                text: msg.responseJSON.details,
+            })
+        }
+
+    })
+})

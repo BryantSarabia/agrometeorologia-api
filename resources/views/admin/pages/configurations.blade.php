@@ -60,7 +60,7 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <a href="{{ route('admin.configuration.delete', ['id' => $configuration->id]) }}"
+                                        <a href="#"
                                            class="btn btn-danger delete_configuration" data-id="{{$configuration->id}}">Delete</a>
                                     </td>
                                 </tr>
