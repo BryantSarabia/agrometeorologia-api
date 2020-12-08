@@ -15,7 +15,7 @@ class CreateProjectsTable extends Migration
     {
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id');
+            $table->foreignId('user_id')->nullable();
             $table->string('name');
             $table->string('api_key',255)->unique()->nullable();
             $table->enum('license',['basic','pro']);

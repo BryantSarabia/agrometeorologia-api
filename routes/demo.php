@@ -2,6 +2,8 @@
 
 /* Demo */
 
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function(){

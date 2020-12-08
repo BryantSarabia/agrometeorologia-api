@@ -26,10 +26,8 @@ $(document).ready(function () {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
                 'Authorization': 'Bearer ' + localStorage.getItem('token')
             },
-            success: function (response) {
-                console.log("deleting" + id);
-                console.log(response);
-                button.parents().find('tr').hide(300, function () {
+            success: function () {
+                button.parent().parent().hide(300, function () {
                     $(this).remove();
                 })
                 Toast.fire({
@@ -47,6 +45,8 @@ $(document).ready(function () {
         });
     });
 
+
+
     $(document).on("click", ".change_status", function (event) {
         event.preventDefault();
         let button = $(this);
@@ -60,8 +60,6 @@ $(document).ready(function () {
                 'Authorization': 'Bearer ' + localStorage.getItem('token')
             },
             success: function (response) {
-                console.log("changing " + id);
-                console.log(response);
                 if (button.prop("checked")) {
                     button.prop("checked", false);
                     button.siblings('label').text('Enable');
@@ -80,31 +78,92 @@ $(document).ready(function () {
         });
     });
 
+    $(document).on("click", ".delete_user", function (event) {
+        event.preventDefault();
+        let button = $(this);
+        let id = button.data("id");
 
-    // $(document).on("change", "#configuration_file", function (event) {
-    //     let button = $('.main-form-button');
-    //
-    //     if (!checkExtension('json')) {
-    //         button.prop('disabled', true);
-    //         if (!button.hasClass('disabled')) {
-    //             button.addClass('disabled');
-    //         }
-    //         return false;
-    //     }
-    //
-    //     button.prop('disabled', false);
-    //     if (button.hasClass('disabled')) {
-    //         button.removeClass('disabled');
-    //     }
-    // });
-    //
-    // function checkExtension(extension) {
-    //     file_name = $('#configuration_file').val();
-    //     file_extension = file_name.substring(file_name.lastIndexOf('.') + 1);
-    //     if (file_extension !== extension) {
-    //         return false;
-    //     }
-    //     return true;
-    // }
+
+        $.ajax({
+            type: "DELETE",
+            url: `/dashboard/user/${id}`,
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function (response) {
+                button.parent().parent().hide(300, function () {
+                    $(this).remove();
+                })
+                Toast.fire({
+                    icon: 'success',
+                    title: 'Deleted'
+                })
+            },
+            error: function (msg) {
+                console.log(msg);
+                Toast.fire({
+                    icon: "warning",
+                    title: msg.responseJSON.title,
+                    text: msg.responseJSON.details,
+                })
+            }
+        });
+    });
+
+    $(document).on("click", ".delete_project", function (event) {
+        event.preventDefault();
+        let button = $(this);
+        let id = button.data("id");
+
+        $.ajax({
+            type: "DELETE",
+            url: `/dashboard/project/${id}`,
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function (response) {
+                button.parent().parent().hide(300, function () {
+                    $(this).remove();
+                })
+                Toast.fire({
+                    icon: 'success',
+                    title: 'Deleted'
+                })
+            },
+            error: function (msg) {
+                Toast.fire({
+                    icon: "warning",
+                    title: msg.responseJSON.title,
+                    text: msg.responseJSON.details,
+                })
+            }
+        });
+    });
+
+    $(document).on("change", "#configuration_file", function (event) {
+        let button = $('.main-form-button');
+
+        if (!checkExtension('json')) {
+            button.prop('disabled', true);
+            if (!button.hasClass('disabled')) {
+                button.addClass('disabled');
+            }
+            return false;
+        }
+
+        button.prop('disabled', false);
+        if (button.hasClass('disabled')) {
+            button.removeClass('disabled');
+        }
+    });
+
+    function checkExtension(extension) {
+        file_name = $('#configuration_file').val();
+        file_extension = file_name.substring(file_name.lastIndexOf('.') + 1);
+        if (file_extension !== extension) {
+            return false;
+        }
+        return true;
+    }
 
 });

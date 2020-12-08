@@ -9,22 +9,20 @@
             <p>Agrometeorologia</p>
 
             <li {{Route::currentRouteName() == 'admin.home' ? 'class=active' : ''}}>
-                <a href="#analytics" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Analytics</a>
-                <ul class="collapse list-unstyled" id="analytics">
-                    <li>
-                        <a href="{{ route('admin.home') }}">All Analytics</a>
-                    </li>
-                    <li>
-                        <a href="#">Home 2</a>
-                    </li>
-                    <li>
-                        <a href="#">Home 3</a>
-                    </li>
-                </ul>
+                <a href="{{ route('admin.home') }}">Analytics</a>
+            </li>
+
+            <li {{Route::currentRouteName() == 'admin.user.all' ? 'class=active' : ''}}>
+                <a href="{{ route('admin.user.all') }}">Users</a>
+            </li>
+
+            <li {{Route::currentRouteName() == 'admin.project.all' ? 'class=active' : ''}}>
+                <a href="{{ route('admin.project.all') }}">Projects</a>
             </li>
 
             <li {{Route::currentRouteName() == 'admin.configuration.create' || Route::currentRouteName() == 'admin.configuration.all'  ? 'class=active' : ''}}>
-                <a href="#meta-api" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Meta API Configurations</a>
+                <a href="#meta-api" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Meta API
+                    Configurations</a>
                 <ul class="collapse list-unstyled" id="meta-api">
                     <li>
                         <a href="{{ route('admin.configuration.create') }}">New configuration</a>

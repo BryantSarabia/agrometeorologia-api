@@ -2,12 +2,11 @@
 
 namespace App\Http\Middleware;
 
-use App\Jobs\LogRequestJob;
+use App\Jobs\LogProjectRequestJob;
 use App\Models\Project;
 use Closure;
 use Illuminate\Http\Request;
 use App\Traits\ResponsesJSON;
-use Illuminate\Support\Facades\Crypt;
 
 
 class ApiKey
@@ -39,7 +38,7 @@ class ApiKey
 
     public function terminate($request, $response){
         if($request->bearerToken()) {
-            LogRequestJob::dispatch('/' . $request->path(), $request->bearerToken());
+            LogProjectRequestJob::dispatch('/' . $request->path(), $request->bearerToken());
         }
     }
 }

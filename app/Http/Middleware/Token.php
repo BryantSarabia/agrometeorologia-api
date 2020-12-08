@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Jobs\LogUserRequestJob;
 use App\Models\User;
 use App\Traits\ResponsesJSON;
 use Closure;
@@ -32,5 +33,11 @@ class Token
         }
 
         return $next($request);
+    }
+
+    public function terminate($request, $response){
+        if($request->bearerToken()) {
+            LogUserRequestJob::dispatch('/' . $request->path(), $request->bearerToken());
+        }
     }
 }

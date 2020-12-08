@@ -50,6 +50,10 @@ class User extends Authenticatable
         return $this->hasMany('App\Models\Report');
     }
 
+    public function requests(){
+        return $this->hasMany('App\Models\Request');
+    }
+
     public function locations(){
         return $this->hasMany('App\Models\Location');
     }

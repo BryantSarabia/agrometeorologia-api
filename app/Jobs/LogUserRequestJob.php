@@ -2,20 +2,19 @@
 
 namespace App\Jobs;
 
-use App\Models\Project;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Http\Request;
 
-
-class LogRequestJob implements ShouldQueue
+class LogUserRequestJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     private $path, $token;
+
     /**
      * Create a new job instance.
      *
@@ -34,18 +33,18 @@ class LogRequestJob implements ShouldQueue
      */
     public function handle()
     {
-        $project = Project::where('api_key',$this->token)->first();
+        $user = User::where('token', $this->token)->first();
         $date = date('Y-m-d');
-        $log = $project->requests->where('endpoint', $this->path)->where('date', $date)->first();
-        if($log){
+        $log = $user->requests->where('endpoint', $this->path)->where('date', $date)->first();
+        if ($log) {
             $log->number += 1;
             $log->save();
         } else {
-          $project->requests()->create([
-             'number' => 1,
-             'date' => $date,
-              'endpoint' => $this->path
-          ]);
+            $user->requests()->create([
+                'number' => 1,
+                'date' => $date,
+                'endpoint' => $this->path
+            ]);
         }
     }
 }

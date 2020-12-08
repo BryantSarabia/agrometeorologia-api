@@ -19,7 +19,7 @@ class Project extends Model
     ];
 
     /* @var array */
-    protected $guarded = ['api_key'];
+    protected $hidden = ['api_key'];
 
     public function getLicenseRateLimit(){
         if($this->license === "basic"){

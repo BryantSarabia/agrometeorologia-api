@@ -18,4 +18,5 @@
 {{--Sweet Alert--}}
 <link href="{{ asset('css/sweetalert2.min.css') }}" rel="stylesheet">
 
+<link href="{{ asset("css/chart.min.css") }}" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="{{ asset("css/jquery-ui.css") }}"/>

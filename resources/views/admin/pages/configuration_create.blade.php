@@ -1,7 +1,7 @@
 @extends('admin.layouts.app')
 @section('content')
 
-    <div class="col-10 p-4 main-content bg-transparent">
+    <div class="col-10 offset-2 p-4 main-content bg-transparent">
         <div class="col main-content-box shadow">
             <div class="row">
                 <div class="col">

@@ -134,5 +134,29 @@ hr {
     color: white;
 }
 
+.total-box{
+    background: #7386D5;
+    color: #fff;
+    border-radius: 20px;
+}
 
+
+.left-side-menu{
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    overflow-x: hidden;
+}
+
+a.entity{
+    transition: .4s all;
+}
+
+a.entity:hover{
+    display: block;
+    transform: scale(1.1,1.1);
+}
 

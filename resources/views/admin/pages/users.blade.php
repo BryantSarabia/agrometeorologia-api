@@ -5,7 +5,7 @@
         <div class="col main-content-box shadow">
             <div class="row">
                 <div class="col">
-                    <h1 class="main-content-title text-center mt-3">All configurations</h1>
+                    <h1 class="main-content-title text-center mt-3">All users</h1>
 
                 </div>
             </div>
@@ -20,7 +20,7 @@
                             </span>
                         </div>
                     @endif
-                    @if($configurations->count() > 0)
+                    @if($users->count() > 0)
 
                         @if(Session::has('message'))
                             <div class="alert-success">
@@ -33,35 +33,22 @@
                             <thead>
                             <tr>
                                 <th scope="col">ID</th>
-                                <th scope="col">Group</th>
-                                <th scope="col">Service</th>
-                                <th scope="col">Configuration file</th>
-                                <th scope="col">Status</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Type</th>
                                 <th scope="col">Delete</th>
                             </tr>
                             </thead>
                             <tbody>
-                            @foreach($configurations as $configuration)
+                            @foreach($users as $user)
                                 <tr>
-                                    <th scope="row">{{$configuration->id}}</th>
-                                    <td>{{json_decode($configuration->configuration)->group}}</td>
-                                    <td>{{json_decode($configuration->configuration)->service}}</td>
-                                    <td>
-                                        <a href="{{ route('admin.configuration.show', ['id' => $configuration->id]) }}"
-                                           class="btn main-form-button" target="_blank">Show</a>
-                                    </td>
-                                    <td>
-                                        <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input change_status"
-                                                   data-id="{{$configuration->id}}"
-                                                   id="{{$configuration->id}}" {{ $configuration->enabled ? 'checked' : '' }}>
-                                            <label class="custom-control-label"
-                                                   for="{{$configuration->id}}">{{ $configuration->enabled ? 'Disable' : 'Enable' }}</label>
-                                        </div>
-                                    </td>
+                                    <th scope="row">{{$user->id}}</th>
+                                    <td>{{$user->name}}</td>
+                                    <td>{{$user->email}}</td>
+                                    <td>{{$user->type}}</td>
                                     <td>
                                         <a href="#"
-                                           class="btn btn-danger delete_configuration" data-id="{{$configuration->id}}">Delete</a>
+                                           class="btn btn-danger delete_user" data-id="{{$user->id}}">Delete</a>
                                     </td>
                                 </tr>
                             @endforeach
@@ -80,7 +67,7 @@
 
                 <div class="row  justify-content-center align-items-end mb-1">
                     <div class="col">
-                        {{ $configurations->links() }}
+                        {{ $users->links() }}
                     </div>
                 </div>
             </div>
