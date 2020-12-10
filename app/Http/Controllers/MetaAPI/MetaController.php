@@ -9,6 +9,7 @@ use App\Traits\UtilityMethods;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\View\View;
 
 class MetaController extends Controller
 {
@@ -149,7 +150,7 @@ class MetaController extends Controller
                     // Controllo se i parametri required sono nella richiesta
                     if ($param['required']) {
                         if (!key_exists($key, $query_params)) {
-                            return "Missing param: " . $key;
+                            return $this->ResponseError(400, 'Bad request', "Missing param: {$key}");
                         }
                         // Setto i parametri non required al valore di default se non sono nella richiesta
                     } elseif (!$param['required'] && !key_exists($key, $query_params)) {
@@ -157,12 +158,12 @@ class MetaController extends Controller
                     }
                     // Controllo il tipo del parametro
                     if (!$this->validateType($param['type'], $query_params[$key])) {
-                        return $key . " must be a " . $param['type'];
+                        return $this->ResponseError(400, 'Bad request', "{$key} must be a {$param['type']}");
                     }
 
                     // Controllo i limiti
                     if (!$this->validateLimits($param, $query_params[$key])) {
-                        return $key . " has exceed the limits";
+                        return $this->ResponseError(400, 'Bad request', "{$key} has exceed the limits");
                     }
                     $$key = $query_params[$key];
                 }
@@ -174,12 +175,13 @@ class MetaController extends Controller
         foreach ($sources as $key => $source) {
 
             $url = $source['urlTemplate'];
+
             eval("\$url = \"$url\";"); // valuto la url
             if (filter_var($url, FILTER_VALIDATE_URL)) { // mi assicuro che la url valutata sia sempre una url valida
                 try {
                     $response = Http::timeout(5)->get($url);
                     if (!$response->ok() && $source['required']) {
-                        return $key . " failed";
+                        return $this->ResponseError(503, 'Service failed', "{$key} failed");
                     }
                     if (key_exists('data', $response->json())) {
                         $results[$key] = $response->json()['data'];
@@ -187,14 +189,14 @@ class MetaController extends Controller
                         $results[$key] = $response->json();
                     }
                 } catch (ConnectionException $e) {
-                    return $key . " failed";
+                    return $this->ResponseError(503, 'Source not available', "");
                 }
 
             }
         }
-        return response()->json([
-            $results
-        ]);
+        // *****************---------------------DA FARE ---------- ******////
+        $string = view('result', compact('results'))->render();
+        return response()->json(json_decode($string));
     }
 
     public function delete($id)

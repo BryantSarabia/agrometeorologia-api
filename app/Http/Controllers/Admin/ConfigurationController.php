@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\MetaApiConfiguration;
 use App\Traits\ResponsesJSON;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Blade;
 
 class ConfigurationController extends Controller
 {

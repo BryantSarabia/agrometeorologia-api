@@ -5,7 +5,7 @@
         <div class="col main-content-box shadow">
             <div class="row">
                 <div class="col">
-                    <h1 class="main-content-title text-center mt-3">All users</h1>
+                    <h1 class="main-content-title text-center mt-3">All projects</h1>
 
                 </div>
             </div>
@@ -34,6 +34,7 @@
                             <tr>
                                 <th scope="col">ID</th>
                                 <th scope="col">Name</th>
+                                <th scope="col">User</th>
                                 <th scope="col">License</th>
                                 <th scope="col">Type</th>
                             </tr>
@@ -43,6 +44,7 @@
                                 <tr>
                                     <th scope="row">{{$project->id}}</th>
                                     <td>{{$project->name}}</td>
+                                    <td>{{$project->user->name}}</td>
                                     <th>{{strtoupper($project->license)}}</th>
                                     <td>
                                         <a href="#"

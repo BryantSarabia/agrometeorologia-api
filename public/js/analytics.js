@@ -26,7 +26,7 @@ $(document).ready(function () {
                 projects_usages.push(data.projects[k].total);
             }
             let ctx2 = $('#projectUsage');
-            inizialiteChart(ctx2, "Projects Usage", "line","", false, projects_names, projects_usages);
+            inizialiteChart(ctx2, "Projects Usage", "bar","", false, projects_names, projects_usages);
 
             let users_names = [];
             let users_usages = [];
@@ -35,7 +35,7 @@ $(document).ready(function () {
                 users_usages.push(data.users[k].total);
             }
             let ctx3 = $('#userUsage');
-            inizialiteChart(ctx3, "Users Usage", "line", "", false, users_names, users_usages);
+            inizialiteChart(ctx3, "Users Usage", "bar", "", false, users_names, users_usages);
 
             let endpoints_names = [];
             let endpoints_usages = [];
