@@ -17,7 +17,7 @@ $(document).ready(function () {
                 total_values.push(data.total_usage[k]);
             }
             let ctx1 = $('#apiUsage');
-            inizialiteChart(ctx1, "Usage", "line","Total Usage", true, total_keys, total_values);
+            inizialiteChart(ctx1, "Usage", "line","Total Usage", true, total_keys, total_values, '#6666ff','#7386D5');
 
             let projects_names = [];
             let projects_usages = [];
@@ -26,7 +26,7 @@ $(document).ready(function () {
                 projects_usages.push(data.projects[k].total);
             }
             let ctx2 = $('#projectUsage');
-            inizialiteChart(ctx2, "Projects Usage", "bar","", false, projects_names, projects_usages);
+            inizialiteChart(ctx2, "Projects Usage", "bar","", false, projects_names, projects_usages, '#c266ff', '#b84dff');
 
             let users_names = [];
             let users_usages = [];
@@ -35,7 +35,7 @@ $(document).ready(function () {
                 users_usages.push(data.users[k].total);
             }
             let ctx3 = $('#userUsage');
-            inizialiteChart(ctx3, "Users Usage", "bar", "", false, users_names, users_usages);
+            inizialiteChart(ctx3, "Users Usage", "bar", "", false, users_names, users_usages, '#00a3cc', '#008fb3');
 
             let endpoints_names = [];
             let endpoints_usages = [];
@@ -44,11 +44,11 @@ $(document).ready(function () {
                 endpoints_usages.push(data.endpoints[k])
             }
             let ctx4 = $('#endpointUsage');
-            inizialiteChart(ctx4,"Endpoint Usage", "bar","", false, endpoints_names, endpoints_usages);
+            inizialiteChart(ctx4,"Endpoint Usage", "bar","", false, endpoints_names, endpoints_usages, '#00cc66','#00b359');
         }
     });
 
-    function inizialiteChart(ctx, label, type, title, display, labels, data) {
+    function inizialiteChart(ctx, label, type, title, display, labels, data, backgroundColor, borderColor) {
         let myChart = new Chart(ctx, {
             type: type,
             data: {
@@ -56,9 +56,9 @@ $(document).ready(function () {
                 datasets: [{
                     label: label,
                     data: data.length > 0 ? data : [0],
-                    backgroundColor: '#6666ff',
-                    borderColor: '#7386D5',
-                    borderWidth: 2,
+                    backgroundColor: backgroundColor,
+                    borderColor: borderColor,
+                    borderWidth: 1,
                     fill: false
                 }]
             },
@@ -80,6 +80,16 @@ $(document).ready(function () {
                 title: {
                     display: true,
                     text: title
+                },
+                legend: {
+                    display: "top",
+                    position: "top",
+                    align: "center",
+                    labels: {
+                        boxWidth: 20,
+                        fontSize: 10,
+                        padding: 1
+                    }
                 }
             }
         });

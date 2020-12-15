@@ -64,9 +64,9 @@ class MetaController extends Controller
 
         // Controllo le proprieta di ogni source
         foreach ($conf['operations'] as $key => $operation) {
-            if (!key_exists('sources', $conf['operations'][$key]) || !key_exists('result', $conf['operations'][$key])) {
-                return $this->ResponseError(400, 'Bad request', "Missing parameters at {$key}");
-            }
+//            if (!key_exists('sources', $conf['operations'][$key]) || !key_exists('result', $conf['operations'][$key])) {
+//                return $this->ResponseError(400, 'Bad request', "Missing parameters at {$key}");
+//            }
 
             if (key_exists('params', $operation)) {
                 foreach ($operation['params'] as $key => $param) {
@@ -196,7 +196,6 @@ class MetaController extends Controller
 
         if (count($sources) > 1) {
             foreach ($sources as $key => $source) {
-
                 $url = view("metaAPI.configurations.{$group}.{$service}.{$operation}.sources.{$key}", $data)->render();
                 if (filter_var($url, FILTER_VALIDATE_URL)) { // mi assicuro che la url valutata sia sempre una url valida
                     try {
@@ -218,7 +217,11 @@ class MetaController extends Controller
         } else {
 
             $source = key($sources);
-            $url = view("metaAPI.configurations.{$group}.{$service}.{$operation}.sources.{$source}", $data)->render();
+            if(isset($data)) {
+                $url = view("metaAPI.configurations.{$group}.{$service}.{$operation}.sources.{$source}", $data)->render();
+            } else {
+                $url = view("metaAPI.configurations.{$group}.{$service}.{$operation}.sources.{$source}")->render();
+            }
             if (filter_var($url, FILTER_VALIDATE_URL)) { // mi assicuro che la url valutata sia sempre una url valida
                 try {
                     $response = Http::timeout(5)->get($url);
@@ -236,8 +239,7 @@ class MetaController extends Controller
 
             }
         }
-
-        $string = view("metaAPI.configurations.{$group}.{$service}.{$operation}.result.template", compact('results'))->render();;
+        $string = view("metaAPI.configurations.{$group}.{$service}.{$operation}.result.template", compact('results'))->render();
         return response()->json(json_decode($string));
     }
 
@@ -247,9 +249,12 @@ class MetaController extends Controller
         if (!$configuration) {
             return $this->ResponseError(404, 'Not found', 'Configuration not found');
         }
-        $group = json_decode($configuration->configuration)->group;
-        $dir = resource_path('views') . DIRECTORY_SEPARATOR . "metaAPI\\configurations" . DIRECTORY_SEPARATOR . $group;
+        $obj = json_decode($configuration->configuration);
+        $dir = resource_path('views') . DIRECTORY_SEPARATOR . "metaAPI\\configurations" . DIRECTORY_SEPARATOR . $obj->group . DIRECTORY_SEPARATOR . $obj->service;
         $this->rrmdir($dir);
+        if($this->is_dir_empty(resource_path('views') . DIRECTORY_SEPARATOR. "metaAPI\\configurations" . DIRECTORY_SEPARATOR . $obj->group)){
+            rmdir(resource_path('views') . DIRECTORY_SEPARATOR. "metaAPI\\configurations" . DIRECTORY_SEPARATOR . $obj->group);
+        }
         $configuration->delete();
 
         return response()->json([], 204);

@@ -29,20 +29,26 @@ trait UtilityMethods
         return !preg_match('/[^A-Za-z]+/', $string);
     }
 
-    public function rrmdir($dir) {
+    public function rrmdir($dir)
+    {
         if (is_dir($dir)) {
             $objects = scandir($dir);
             foreach ($objects as $object) {
                 if ($object != "." && $object != "..") {
-                    if (is_dir($dir. DIRECTORY_SEPARATOR .$object) && !is_link($dir."/".$object))
-                        $this->rrmdir($dir. DIRECTORY_SEPARATOR .$object);
+                    if (is_dir($dir . DIRECTORY_SEPARATOR . $object) && !is_link($dir . "/" . $object))
+                        $this->rrmdir($dir . DIRECTORY_SEPARATOR . $object);
                     else
-                        unlink($dir. DIRECTORY_SEPARATOR .$object);
+                        unlink($dir . DIRECTORY_SEPARATOR . $object);
                 }
             }
             rmdir($dir);
         }
     }
 
+    public function is_dir_empty($dir)
+    {
+        if (!is_readable($dir)) return NULL;
+        return (count(scandir($dir)) == 2);
+    }
 
 }

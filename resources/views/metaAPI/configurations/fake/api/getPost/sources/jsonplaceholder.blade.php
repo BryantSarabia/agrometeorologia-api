@@ -1,1 +1,1 @@
-https://jsonplaceholder.typicode.com/posts/{{$id}}
+https://jsonplaceholder.typicode.com/posts/$id

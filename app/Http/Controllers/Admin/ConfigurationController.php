@@ -74,6 +74,25 @@ class ConfigurationController extends Controller
         $obj = MetaApiConfiguration::create([
             'configuration' => json_encode($conf),
         ]);
+
+        foreach($conf['operations'] as $operation_key => $operation){
+            foreach($operation['sources'] as $source_key => $source){
+                $path = resource_path('views') . "\\metaAPI" . "\\configurations\\"  . $group . "\\" . $service . "\\" . $operation_key;
+                if(!is_dir($path . "\\sources")){
+                    mkdir($path . "\\sources", 0777, true);
+                }
+                $file = fopen( $path . "\\sources\\" . $source_key . ".blade.php", 'w');
+                fwrite($file, $source['urlTemplate']);
+                fclose($file);
+            }
+            if(!is_dir($path . "\\result")){
+                mkdir($path . "\\result", 0777, true);
+            }
+            $file = fopen( $path . "\\result\\" . "template.blade.php", 'w');
+            fwrite($file, $operation['result']['template']);
+            fclose($file);
+        }
+
         return redirect()->route('admin.configuration.all')->with('message', 'Configuration created');
 
     }
