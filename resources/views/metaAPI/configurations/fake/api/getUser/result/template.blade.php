@@ -1,0 +1,1 @@
+blade template that uses the source data to create a result of the specified type

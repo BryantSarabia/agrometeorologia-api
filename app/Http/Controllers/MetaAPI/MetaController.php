@@ -8,6 +8,7 @@ use App\Traits\ResponsesJSON;
 use App\Traits\UtilityMethods;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
 
@@ -40,7 +41,6 @@ class MetaController extends Controller
             $conf = json_decode($file_content, true);
 
         } elseif ($request->header('Content-Type') === "application/json") {
-            // Controllo se esistono le proprietà nelle configurazioni
             $conf = $request->all();
 
         } else {
@@ -51,6 +51,8 @@ class MetaController extends Controller
         if (!is_array($conf)) {
             return $this->ResponseError(400, 'Bad request', 'Parsing error');
         }
+
+        // Controllo se esistono le proprietà nelle configurazioni
 
         if (!key_exists('group', $conf)) {
             return $this->ResponseError(400, 'Bad request', 'Missing group');
@@ -76,9 +78,9 @@ class MetaController extends Controller
                         return $this->ResponseError(400, 'Bad request', "Missing type parameter at {$key}");
                     }
 
-                    if(key_exists('description',$param)){
-                        if(!$this->validateType("string", $param['description'])){
-                            return $this->ResponseError(400,'Bad request', "Description parameter must be a string at {$key}");
+                    if (key_exists('description', $param)) {
+                        if (!$this->validateType("string", $param['description'])) {
+                            return $this->ResponseError(400, 'Bad request', "Description parameter must be a string at {$key}");
                         }
                     }
 
@@ -86,8 +88,8 @@ class MetaController extends Controller
                         return $this->ResponseError(400, 'Bad request', "Required paramter must be a boolean at {$key}");
                     }
 
-                    if(!$this->validateType("string", $param['type'])){
-                        return $this->ResponseError(400,'Bad request', "Type parameter must be a string at {$key}");
+                    if (!$this->validateType("string", $param['type'])) {
+                        return $this->ResponseError(400, 'Bad request', "Type parameter must be a string at {$key}");
                     }
                 }
             }
@@ -98,14 +100,13 @@ class MetaController extends Controller
 
                 if (!is_string($source['description'])) {
                     return $this->ResponseError(400, 'Bad request', "Description must be a string at {$key}");
-                } elseif (!filter_var($source['required'], FILTER_VALIDATE_BOOL)) {
+                } elseif (!is_bool($source['required'])) {
                     return $this->ResponseError(400, 'Bad request', "Required must be a boolean at {$key}");
                 }
             }
         }
         $group = $conf['group'];
         $service = $conf['service'];
-
         $obj = MetaApiConfiguration::where('configuration->group', $group)->where('configuration->service', $service)->first();
         if ($obj) {
             return $this->ResponseError(400, 'Bad request', 'This configuration already exists');
@@ -114,6 +115,24 @@ class MetaController extends Controller
         $obj = MetaApiConfiguration::create([
             'configuration' => json_encode($conf),
         ]);
+
+        foreach($conf['operations'] as $operation_key => $operation){
+            foreach($operation['sources'] as $source_key => $source){
+                $path = resource_path('views') . "\\metaAPI" . "\\configurations\\"  . $group . "\\" . $service . "\\" . $operation_key;
+                if(!is_dir($path . "\\sources")){
+                    mkdir($path . "\\sources", 0777, true);
+                }
+                $file = fopen( $path . "\\sources\\" . $source_key . ".blade.php", 'w');
+                fwrite($file, $source['urlTemplate']);
+                fclose($file);
+            }
+            if(!is_dir($path . "\\result")){
+                mkdir($path . "\\result", 0777, true);
+            }
+            $file = fopen( $path . "\\result\\" . "template.blade.php", 'w');
+            fwrite($file, $operation['result']['template']);
+            fclose($file);
+        }
         return response()->json(['data' => $obj], 201, ['Content-Type' => 'application/json']);
 
     }
@@ -132,6 +151,8 @@ class MetaController extends Controller
         $obj = MetaApiConfiguration::where('configuration->group', $group)->where('configuration->service', $service)->first();
         if (!$obj) {
             return $this->ResponseError(404, 'Not found', 'Configuration not found');
+        } elseif(!$obj->enabled){
+            return $this->ResponseError(503, 'Service Unavailable', 'This configuration is disabled');
         }
 
         $conf = json_decode($obj->configuration, true);
@@ -165,28 +186,49 @@ class MetaController extends Controller
                     if (!$this->validateLimits($param, $query_params[$key])) {
                         return $this->ResponseError(400, 'Bad request', "{$key} has exceed the limits");
                     }
-                    $$key = $query_params[$key];
+                    $data[$key] = $query_params[$key];
                 }
             }
         }
         // process source
         $sources = $conf['operations'][$operation]['sources'];
         $results = [];
-        foreach ($sources as $key => $source) {
 
-            $url = $source['urlTemplate'];
+        if (count($sources) > 1) {
+            foreach ($sources as $key => $source) {
 
-            eval("\$url = \"$url\";"); // valuto la url
+                $url = view("metaAPI.configurations.{$group}.{$service}.{$operation}.sources.{$key}", $data)->render();
+                if (filter_var($url, FILTER_VALIDATE_URL)) { // mi assicuro che la url valutata sia sempre una url valida
+                    try {
+                        $response = Http::timeout(5)->get($url);
+                        if (!$response->ok() && $source['required']) {
+                            return $this->ResponseError(503, 'Service failed', "{$key} failed");
+                        }
+                        if (key_exists('data', $response->json())) {
+                            $results[$key] = $response->json()['data'];
+                        } else {
+                            $results[$key] = $response->json();
+                        }
+                    } catch (ConnectionException $e) {
+                        return $this->ResponseError(503, 'Source not available', "");
+                    }
+
+                }
+            }
+        } else {
+
+            $source = key($sources);
+            $url = view("metaAPI.configurations.{$group}.{$service}.{$operation}.sources.{$source}", $data)->render();
             if (filter_var($url, FILTER_VALIDATE_URL)) { // mi assicuro che la url valutata sia sempre una url valida
                 try {
                     $response = Http::timeout(5)->get($url);
-                    if (!$response->ok() && $source['required']) {
-                        return $this->ResponseError(503, 'Service failed', "{$key} failed");
+                    if (!$response->ok() && $sources[$source]['required']) {
+                        return $this->ResponseError(503, 'Service failed', "{$source} failed");
                     }
                     if (key_exists('data', $response->json())) {
-                        $results[$key] = $response->json()['data'];
+                        $results = $response->json()['data'];
                     } else {
-                        $results[$key] = $response->json();
+                        $results = $response->json();
                     }
                 } catch (ConnectionException $e) {
                     return $this->ResponseError(503, 'Source not available', "");
@@ -194,8 +236,8 @@ class MetaController extends Controller
 
             }
         }
-        // *****************---------------------DA FARE ---------- ******////
-        $string = view('result', compact('results'))->render();
+
+        $string = view("metaAPI.configurations.{$group}.{$service}.{$operation}.result.template", compact('results'))->render();;
         return response()->json(json_decode($string));
     }
 
@@ -205,8 +247,11 @@ class MetaController extends Controller
         if (!$configuration) {
             return $this->ResponseError(404, 'Not found', 'Configuration not found');
         }
-
+        $group = json_decode($configuration->configuration)->group;
+        $dir = resource_path('views') . DIRECTORY_SEPARATOR . "metaAPI\\configurations" . DIRECTORY_SEPARATOR . $group;
+        $this->rrmdir($dir);
         $configuration->delete();
+
         return response()->json([], 204);
     }
 
