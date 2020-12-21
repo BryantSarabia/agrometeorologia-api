@@ -52,9 +52,6 @@ class ConfigurationController extends Controller
                 return redirect()->back()->withErrors(['parameters' => "Missing parameters at {$key}"]);
             }
             foreach ($operation['sources'] as $key => $source) {
-                if (!filter_var($source['urlTemplate'], FILTER_VALIDATE_URL)) {
-                    return redirect()->back()->withErrors(['source_url' => "Invalid url source at {$key}"]);
-                }
 
                 if (!is_string($source['description'])) {
                     return redirect()->back()->withErrors(['description' => 'Description must be a string']);

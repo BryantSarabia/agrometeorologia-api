@@ -64,14 +64,18 @@ class MetaController extends Controller
 
         // Controllo le proprieta di ogni source
         foreach ($conf['operations'] as $key => $operation) {
-//            if (!key_exists('sources', $conf['operations'][$key]) || !key_exists('result', $conf['operations'][$key])) {
-//                return $this->ResponseError(400, 'Bad request', "Missing parameters at {$key}");
-//            }
+            if (!key_exists('sources', $operation) || !key_exists('result', $operation)) {
+                return $this->ResponseError(400, 'Bad request', "Missing parameters at {$key}");
+            }
 
             if (key_exists('params', $operation)) {
                 foreach ($operation['params'] as $key => $param) {
                     if (!key_exists('required', $param)) {
                         return $this->ResponseError(400, 'Bad request', "Missing required parameter at {$key}");
+                    }
+
+                    if (!$this->validateType("boolean", $param['required'])) {
+                        return $this->ResponseError(400, 'Bad request', "Required must be a boolean at {$key}");
                     }
 
                     if (!key_exists('type', $param)) {
@@ -94,15 +98,31 @@ class MetaController extends Controller
                 }
             }
             foreach ($operation['sources'] as $key => $source) {
-                if (!filter_var($source['urlTemplate'], FILTER_VALIDATE_URL)) {
-                    return $this->ResponseError(400, 'Bad request', "Invalid source url at {$key}");
-                }
 
                 if (!is_string($source['description'])) {
                     return $this->ResponseError(400, 'Bad request', "Description must be a string at {$key}");
-                } elseif (!is_bool($source['required'])) {
+                }
+
+                if (!is_bool($source['required'])) {
                     return $this->ResponseError(400, 'Bad request', "Required must be a boolean at {$key}");
                 }
+
+                if (!key_exists('method', $source)) {
+                    return $this->ResponseError(400, 'Bad request', "Missing method at {$key} source");
+                }
+
+                if ($source['method'] !== "GET" && $source['method'] !== "POST") {
+                    return $this->ResponseError(400, 'Bad request', "Method not supported at {$key} source");
+                }
+
+                if (!key_exists("payloadType", $source)) {
+                    return $this->ResponseError(400, 'Bad request', "Missing payload type at {$key} source");
+                }
+
+                if (!key_exists("payloadTemplate", $source)) {
+                    return $this->ResponseError(400, 'Bad request', "Missing payload template at {$key} source");
+                }
+
             }
         }
         $group = $conf['group'];
@@ -112,27 +132,36 @@ class MetaController extends Controller
             return $this->ResponseError(400, 'Bad request', 'This configuration already exists');
         }
 
+        foreach ($conf['operations'] as $operation_key => $operation) {
+            foreach ($operation['sources'] as $source_key => $source) {
+                $path = resource_path('views') . "\\metaAPI" . "\\configurations\\" . $group . "\\" . $service . "\\" . $operation_key;
+                if (!is_dir($path . "\\sources")) {
+                    mkdir($path . "\\sources", 0777, true);
+                }
+                $file = fopen($path . "\\sources\\" . $source_key . ".blade.php", 'w');
+                fwrite($file, $source['urlTemplate']);
+                fclose($file);
+
+                if ($source['method'] === "POST") {
+                    $file = fopen($path . "\\sources\\" . $source_key . "-payload.blade.php", 'w');
+                    fwrite($file, $source['payloadTemplate']);
+                    fclose($file);
+                }
+            }
+            if (!is_dir($path . "\\result")) {
+                mkdir($path . "\\result", 0777, true);
+            }
+            $file = fopen($path . "\\result\\" . "template.blade.php", 'w');
+            fwrite($file, $operation['result']['template']);
+            fclose($file);
+
+        }
+
         $obj = MetaApiConfiguration::create([
             'configuration' => json_encode($conf),
         ]);
 
-        foreach($conf['operations'] as $operation_key => $operation){
-            foreach($operation['sources'] as $source_key => $source){
-                $path = resource_path('views') . "\\metaAPI" . "\\configurations\\"  . $group . "\\" . $service . "\\" . $operation_key;
-                if(!is_dir($path . "\\sources")){
-                    mkdir($path . "\\sources", 0777, true);
-                }
-                $file = fopen( $path . "\\sources\\" . $source_key . ".blade.php", 'w');
-                fwrite($file, $source['urlTemplate']);
-                fclose($file);
-            }
-            if(!is_dir($path . "\\result")){
-                mkdir($path . "\\result", 0777, true);
-            }
-            $file = fopen( $path . "\\result\\" . "template.blade.php", 'w');
-            fwrite($file, $operation['result']['template']);
-            fclose($file);
-        }
+
         return response()->json(['data' => $obj], 201, ['Content-Type' => 'application/json']);
 
     }
@@ -151,7 +180,7 @@ class MetaController extends Controller
         $obj = MetaApiConfiguration::where('configuration->group', $group)->where('configuration->service', $service)->first();
         if (!$obj) {
             return $this->ResponseError(404, 'Not found', 'Configuration not found');
-        } elseif(!$obj->enabled){
+        } elseif (!$obj->enabled) {
             return $this->ResponseError(503, 'Service Unavailable', 'This configuration is disabled');
         }
 
@@ -177,6 +206,7 @@ class MetaController extends Controller
                     } elseif (!$param['required'] && !key_exists($key, $query_params)) {
                         $query_params[$key] = $param['default'];
                     }
+
                     // Controllo il tipo del parametro
                     if (!$this->validateType($param['type'], $query_params[$key])) {
                         return $this->ResponseError(400, 'Bad request', "{$key} must be a {$param['type']}");
@@ -194,12 +224,20 @@ class MetaController extends Controller
         $sources = $conf['operations'][$operation]['sources'];
         $results = [];
 
+
         if (count($sources) > 1) {
             foreach ($sources as $key => $source) {
-                $url = view("metaAPI.configurations.{$group}.{$service}.{$operation}.sources.{$key}", $data)->render();
-                if (filter_var($url, FILTER_VALIDATE_URL)) { // mi assicuro che la url valutata sia sempre una url valida
+                if (isset($data)) {
+                    $url = view("metaAPI.configurations.{$group}.{$service}.{$operation}.sources.{$key}", $data)->render();
+                } else {
+                    $url = view("metaAPI.configurations.{$group}.{$service}.{$operation}.sources.{$key}")->render();
+                }
+                if (!filter_var($url, FILTER_VALIDATE_URL)) { // mi assicuro che la url valutata sia sempre una url valida
+                    return $this->ResponseError(500, 'Internal server error', "The URL generated is not valid");
+                }
+                if ($source['method'] === "GET") {
                     try {
-                        $response = Http::timeout(5)->get($url);
+                        $response = Http::timeout(10)->get($url);
                         if (!$response->ok() && $source['required']) {
                             return $this->ResponseError(503, 'Service failed', "{$key} failed");
                         }
@@ -211,36 +249,74 @@ class MetaController extends Controller
                     } catch (ConnectionException $e) {
                         return $this->ResponseError(503, 'Source not available', "");
                     }
-
+                } elseif ($source['method'] === "POST") {
+                    $body = view("metaAPI.configurations.{$group}.{$service}.{$operation}.sources.{$key}-payload", $data)->render();
+                    $body = json_decode($body);
+                    try {
+                        $response = Http::timeout(10)->withHeaders(['Content-Type' => $source['payloadType']])->post($url, $body);
+                        if (!$response->ok() && $source['required']) {
+                            return $this->ResponseError(503, 'Service failed', "{$key} failed");
+                        }
+                        if (key_exists('data', $response->json())) {
+                            $results[$key] = $response->json()['data'];
+                        } else {
+                            $results[$key] = $response->json();
+                        }
+                    } catch (ConnectionException $e) {
+                        return $this->ResponseError(503, 'Source not available', "");
+                    }
                 }
             }
+
         } else {
 
             $source = key($sources);
-            if(isset($data)) {
+            if (isset($data)) {
                 $url = view("metaAPI.configurations.{$group}.{$service}.{$operation}.sources.{$source}", $data)->render();
             } else {
                 $url = view("metaAPI.configurations.{$group}.{$service}.{$operation}.sources.{$source}")->render();
             }
-            if (filter_var($url, FILTER_VALIDATE_URL)) { // mi assicuro che la url valutata sia sempre una url valida
+            if (!filter_var($url, FILTER_VALIDATE_URL)) { // mi assicuro che la url valutata sia sempre una url valida
+                return $this->ResponseError(500, 'Internal server error', "The URL generated is not valid");
+            }
+            if ($source['method'] === "GET") {
                 try {
-                    $response = Http::timeout(5)->get($url);
-                    if (!$response->ok() && $sources[$source]['required']) {
-                        return $this->ResponseError(503, 'Service failed', "{$source} failed");
+                    $response = Http::timeout(10)->get($url);
+                    if (!$response->ok() && $source['required']) {
+                        return $this->ResponseError(503, 'Service failed', "{$key} failed");
                     }
                     if (key_exists('data', $response->json())) {
-                        $results = $response->json()['data'];
+                        $results[$key] = $response->json()['data'];
                     } else {
-                        $results = $response->json();
+                        $results[$key] = $response->json();
                     }
                 } catch (ConnectionException $e) {
                     return $this->ResponseError(503, 'Source not available', "");
                 }
-
+            } elseif ($source['method'] === "POST") {
+                $body = view("metaAPI.configurations.{$group}.{$service}.{$operation}.sources.{$source}-payload", $data)->render();
+                $body = json_decode($body);
+                try {
+                    $response = Http::timeout(10)->withHeaders(['Content-Type' => $source['payloadType']])->post($url, $body);
+                    if (!$response->ok() && $source['required']) {
+                        return $this->ResponseError(503, 'Service failed', "{$key} failed");
+                    }
+                    if (key_exists('data', $response->json())) {
+                        $results[$key] = $response->json()['data'];
+                    } else {
+                        $results[$key] = $response->json();
+                    }
+                } catch (ConnectionException $e) {
+                    return $this->ResponseError(503, 'Source not available', "");
+                }
             }
         }
         $string = view("metaAPI.configurations.{$group}.{$service}.{$operation}.result.template", compact('results'))->render();
-        return response()->json(json_decode($string));
+        $json = json_decode($string);
+        if ($json === null) {
+            return $this->ResponseError(500, "Internal server error", "Parsing error");
+        }
+        return response()->json($json);
     }
 
     public function delete($id)
@@ -252,8 +328,8 @@ class MetaController extends Controller
         $obj = json_decode($configuration->configuration);
         $dir = resource_path('views') . DIRECTORY_SEPARATOR . "metaAPI\\configurations" . DIRECTORY_SEPARATOR . $obj->group . DIRECTORY_SEPARATOR . $obj->service;
         $this->rrmdir($dir);
-        if($this->is_dir_empty(resource_path('views') . DIRECTORY_SEPARATOR. "metaAPI\\configurations" . DIRECTORY_SEPARATOR . $obj->group)){
-            rmdir(resource_path('views') . DIRECTORY_SEPARATOR. "metaAPI\\configurations" . DIRECTORY_SEPARATOR . $obj->group);
+        if ($this->is_dir_empty(resource_path('views') . DIRECTORY_SEPARATOR . "metaAPI\\configurations" . DIRECTORY_SEPARATOR . $obj->group)) {
+            rmdir(resource_path('views') . DIRECTORY_SEPARATOR . "metaAPI\\configurations" . DIRECTORY_SEPARATOR . $obj->group);
         }
         $configuration->delete();
 
@@ -293,6 +369,10 @@ class MetaController extends Controller
                     break;
                 case 'boolean':
                     return filter_var($value, FILTER_VALIDATE_BOOL);
+                    break;
+                case 'date':
+                    $date = explode('-', $value);
+                    return checkdate($date[1], $date[2], $date[0]);
                     break;
             }
         }
