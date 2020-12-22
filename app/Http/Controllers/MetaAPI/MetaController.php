@@ -111,11 +111,11 @@ class MetaController extends Controller
                     return $this->ResponseError(400, 'Bad request', "Missing method at {$key} source");
                 }
 
-                if ($source['method'] !== "GET" && $source['method'] !== "POST") {
+                if (strtoupper($source['method']) !== "GET" && strtoupper($source['method']) !== "POST") {
                     return $this->ResponseError(400, 'Bad request', "Method not supported at {$key} source");
                 }
 
-                if ($source['method'] === "POST") {
+                if (strtoupper($source['method']) === "POST") {
                     if (!key_exists("payloadType", $source)) {
                         return $this->ResponseError(400, 'Bad request', "Missing payload type at {$key} source");
                     }
@@ -142,7 +142,7 @@ class MetaController extends Controller
                 fwrite($file, $source['urlTemplate']);
                 fclose($file);
 
-                if ($source['method'] === "POST") {
+                if (strtoupper($source['method']) === "POST") {
                     $file = fopen($path . "\\sources\\" . $source_key . "-payload.blade.php", 'w');
                     fwrite($file, $source['payloadTemplate']);
                     fclose($file);
@@ -235,12 +235,12 @@ class MetaController extends Controller
                 if (!filter_var($url, FILTER_VALIDATE_URL)) { // mi assicuro che la url valutata sia sempre una url valida
                     return $this->ResponseError(500, 'Internal server error', "The URL generated is not valid");
                 }
-                if ($source['method'] === "GET") {
+                if (strtoupper($source['method']) === "GET") {
                     $results[$key] = $this->methodGet($url, $source['required'], $key);
                     if(!$results[$key]){
                         return $this->ResponseError(503, 'Service failed', "{$key} failed");
                     }
-                } elseif ($source['method'] === "POST") {
+                } elseif (strtoupper($source['method']) === "POST") {
                     $results[$key] = $this->methodPost($group, $service, $operation, $key, $source['payloadType'], $source['required'], $data, $url);
                     if(!$results[$key]){
                         return $this->ResponseError(503, 'Service failed', "{$key} failed");
@@ -257,12 +257,12 @@ class MetaController extends Controller
             if (!filter_var($url, FILTER_VALIDATE_URL)) { // mi assicuro che la url valutata sia sempre una url valida
                 return $this->ResponseError(500, 'Internal server error', "The URL generated is not valid");
             }
-            if ($sources[$source]['method'] === "GET") {
+            if (strtoupper($sources[$source]['method']) === "GET") {
                 $results = $this->methodGet($url, $sources[$source]['required'], $source);
                 if(!$results){
                     return $this->ResponseError(503, 'Service failed', "{$source} failed");
                 }
-            } elseif ($sources[$source]['method'] === "POST") {
+            } elseif (strtoupper($sources[$source]['method']) === "POST") {
                 $results = $this->methodPost($group, $service, $operation, $source, $sources[$source]['payloadType'], $sources[$source]['required'], $data, $url);
                 if(!$results){
                     return $this->ResponseError(503, 'Service failed', "{$source} failed");

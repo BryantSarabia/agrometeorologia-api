@@ -92,11 +92,11 @@ class ConfigurationController extends Controller
                     return redirect()->back()->withErrors(['method' => "Missing method at {$key} source"]);
                 }
 
-                if ($source['method'] !== "GET" && $source['method'] !== "POST") {
+                if (strtoupper($source['method']) !== "GET" && strtoupper($source['method']) !== "POST") {
                     return redirect()->back()->withErrors(['method' => "Method not supported at {$key} source"]);
                 }
 
-                if ($source['method'] === "POST") {
+                if (strtoupper($source['method']) === "POST") {
                     if (!key_exists("payloadType", $source)) {
                         return redirect()->back()->withErrors(['payloadType' => "Missing payload type at at {$key} source"]);
                     }
@@ -124,7 +124,7 @@ class ConfigurationController extends Controller
                 fwrite($file, $source['urlTemplate']);
                 fclose($file);
 
-                if ($source['method'] === "POST") {
+                if (strtoupper($source['method']) === "POST") {
                     $file = fopen($path . "\\sources\\" . $source_key . "-payload.blade.php", 'w');
                     fwrite($file, $source['payloadTemplate']);
                     fclose($file);

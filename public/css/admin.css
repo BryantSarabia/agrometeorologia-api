@@ -122,6 +122,11 @@ hr {
     overflow: hidden;
 }
 
+.files input:focus{
+    outline: none;
+    border: 2px solid #6666ff;
+}
+
 .files input::before{
     content: "Drag it here or ";
     color: #6666ff;
