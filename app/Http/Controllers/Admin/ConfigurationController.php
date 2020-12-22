@@ -7,6 +7,8 @@ use App\Models\MetaApiConfiguration;
 use App\Traits\ResponsesJSON;
 use App\Traits\UtilityMethods;
 use Illuminate\Http\Request;
+use Symfony\Component\Yaml\Exception\DumpException;
+use Symfony\Component\Yaml\Yaml;
 
 class ConfigurationController extends Controller
 {
@@ -143,7 +145,24 @@ class ConfigurationController extends Controller
             'configuration' => json_encode($conf),
         ]);
 
-
+        $configuration = json_decode($obj->configuration, true);
+        $template = view('metaAPI.generate_specification', compact('configuration'))->render();
+        $decoded_template = json_decode($template, true);
+        if($decoded_template === null){
+            return $this->ResponseError(500, "Internal server error", "Parsing error");
+        }
+        try{
+            $yaml = Yaml::dump($decoded_template, 6);
+        } catch(DumpException $e){
+            return $this->ResponseError(500, "Internal server error", "Yaml parsing error");
+        }
+        $path = resource_path('views') . "\\metaAPI" . "\\configurations\\" . $group . "\\" . $service . "\\specification";
+        if(!is_dir($path)) {
+            mkdir($path, 0777, true);
+        }
+        $file = fopen($path . "\\specification.yaml", "w");
+        fwrite($file, $yaml);
+        fclose($file);
         return redirect()->route('admin.configuration.all')->with('message', 'Configuration created');
 
     }

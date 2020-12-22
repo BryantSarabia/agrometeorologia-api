@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\MetaAPI;
 
+use Symfony\Component\Yaml\Yaml;
 use App\Http\Controllers\Controller;
 use App\Models\MetaApiConfiguration;
 use App\Traits\ResponsesJSON;
@@ -11,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
+use Symfony\Component\Yaml\Exception\DumpException;
 
 class MetaController extends Controller
 {
@@ -157,10 +159,29 @@ class MetaController extends Controller
 
         }
 
-        $obj = MetaApiConfiguration::create([
+        $obj = MetaApiConfiguration::make([
             'configuration' => json_encode($conf),
         ]);
 
+        $configuration = json_decode($obj->configuration, true);
+        $template = view('metaAPI.generate_specification', compact('configuration'))->render();
+        $decoded_template = json_decode($template, true);
+        if($decoded_template === null){
+            return $this->ResponseError(500, "Internal server error", "Parsing error");
+        }
+        try{
+            $yaml = Yaml::dump($decoded_template, 9, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+        } catch(DumpException $e){
+            return $this->ResponseError(500, "Internal server error", "Yaml parsing error");
+        }
+//        dd($yaml);
+        $path = resource_path('views') . "\\metaAPI" . "\\configurations\\" . $group . "\\" . $service . "\\specification";
+        if(!is_dir($path)) {
+            mkdir($path, 0777, true);
+        }
+        $file = fopen($path . "\\specification.yaml", "w");
+        fwrite($file, $yaml);
+        fclose($file);
 
         return response()->json(['data' => $obj], 201, ['Content-Type' => 'application/json']);
 
