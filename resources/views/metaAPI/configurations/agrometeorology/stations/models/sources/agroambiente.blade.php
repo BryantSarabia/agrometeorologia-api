@@ -1,0 +1,1 @@
+https://agroambiente.regione.abruzzo.it/api/mod_aedita_model/get_stations_models

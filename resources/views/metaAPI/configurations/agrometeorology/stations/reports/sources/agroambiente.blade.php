@@ -1,0 +1,1 @@
+https://agroambiente.regione.abruzzo.it/api/aedita_meteo/get_report_data/{{$indicator_id}}?request[date_from]={{$from}}&request[date_to]={{$to}}

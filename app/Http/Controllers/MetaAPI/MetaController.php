@@ -98,7 +98,6 @@ class MetaController extends Controller
                 }
             }
             foreach ($operation['sources'] as $key => $source) {
-
                 if (!is_string($source['description'])) {
                     return $this->ResponseError(400, 'Bad request', "Description must be a string at {$key}");
                 }
@@ -115,14 +114,14 @@ class MetaController extends Controller
                     return $this->ResponseError(400, 'Bad request', "Method not supported at {$key} source");
                 }
 
-                if (!key_exists("payloadType", $source)) {
-                    return $this->ResponseError(400, 'Bad request', "Missing payload type at {$key} source");
+                if ($source['method'] === "POST") {
+                    if (!key_exists("payloadType", $source)) {
+                        return $this->ResponseError(400, 'Bad request', "Missing payload type at {$key} source");
+                    }
+                    if (!key_exists("payloadTemplate", $source)) {
+                        return $this->ResponseError(400, 'Bad request', "Missing payload template at {$key} source");
+                    }
                 }
-
-                if (!key_exists("payloadTemplate", $source)) {
-                    return $this->ResponseError(400, 'Bad request', "Missing payload template at {$key} source");
-                }
-
             }
         }
         $group = $conf['group'];
@@ -236,40 +235,19 @@ class MetaController extends Controller
                     return $this->ResponseError(500, 'Internal server error', "The URL generated is not valid");
                 }
                 if ($source['method'] === "GET") {
-                    try {
-                        $response = Http::timeout(10)->get($url);
-                        if (!$response->ok() && $source['required']) {
-                            return $this->ResponseError(503, 'Service failed', "{$key} failed");
-                        }
-                        if (key_exists('data', $response->json())) {
-                            $results[$key] = $response->json()['data'];
-                        } else {
-                            $results[$key] = $response->json();
-                        }
-                    } catch (ConnectionException $e) {
-                        return $this->ResponseError(503, 'Source not available', "");
+                    $results[$key] = $this->methodGet($url, $source['required'], $key);
+                    if(key_exists("code",$results) && key_exists("title",$results) && key_exists("details", $results)){
+                        return response()->json($results);
                     }
                 } elseif ($source['method'] === "POST") {
-                    $body = view("metaAPI.configurations.{$group}.{$service}.{$operation}.sources.{$key}-payload", $data)->render();
-                    $body = json_decode($body);
-                    try {
-                        $response = Http::timeout(10)->withHeaders(['Content-Type' => $source['payloadType']])->post($url, $body);
-                        if (!$response->ok() && $source['required']) {
-                            return $this->ResponseError(503, 'Service failed', "{$key} failed");
-                        }
-                        if (key_exists('data', $response->json())) {
-                            $results[$key] = $response->json()['data'];
-                        } else {
-                            $results[$key] = $response->json();
-                        }
-                    } catch (ConnectionException $e) {
-                        return $this->ResponseError(503, 'Source not available', "");
+                    $results[$key] = $this->methodPost($group, $service, $operation, $key, $source['payloadType'], $source['required'], $data, $url);
+                    if(key_exists("code",$results) && key_exists("title",$results) && key_exists("details", $results)){
+                        return response()->json($results);
                     }
                 }
             }
 
         } else {
-
             $source = key($sources);
             if (isset($data)) {
                 $url = view("metaAPI.configurations.{$group}.{$service}.{$operation}.sources.{$source}", $data)->render();
@@ -279,39 +257,20 @@ class MetaController extends Controller
             if (!filter_var($url, FILTER_VALIDATE_URL)) { // mi assicuro che la url valutata sia sempre una url valida
                 return $this->ResponseError(500, 'Internal server error', "The URL generated is not valid");
             }
-            if ($source['method'] === "GET") {
-                try {
-                    $response = Http::timeout(10)->get($url);
-                    if (!$response->ok() && $source['required']) {
-                        return $this->ResponseError(503, 'Service failed', "{$key} failed");
-                    }
-                    if (key_exists('data', $response->json())) {
-                        $results[$key] = $response->json()['data'];
-                    } else {
-                        $results[$key] = $response->json();
-                    }
-                } catch (ConnectionException $e) {
-                    return $this->ResponseError(503, 'Source not available', "");
+            if ($sources[$source]['method'] === "GET") {
+                $results = $this->methodGet($url, $sources[$source]['required'], $source);
+                if(key_exists("code",$results) && key_exists("title",$results) && key_exists("details", $results)){
+                    return response()->json($results);
                 }
-            } elseif ($source['method'] === "POST") {
-                $body = view("metaAPI.configurations.{$group}.{$service}.{$operation}.sources.{$source}-payload", $data)->render();
-                $body = json_decode($body);
-                try {
-                    $response = Http::timeout(10)->withHeaders(['Content-Type' => $source['payloadType']])->post($url, $body);
-                    if (!$response->ok() && $source['required']) {
-                        return $this->ResponseError(503, 'Service failed', "{$key} failed");
-                    }
-                    if (key_exists('data', $response->json())) {
-                        $results[$key] = $response->json()['data'];
-                    } else {
-                        $results[$key] = $response->json();
-                    }
-                } catch (ConnectionException $e) {
-                    return $this->ResponseError(503, 'Source not available', "");
+            } elseif ($sources[$source]['method'] === "POST") {
+                $results = $this->methodPost($group, $service, $operation, $source, $sources[$source]['payloadType'], $sources[$source]['required'], $data, $url);
+                if(key_exists("code",$results) && key_exists("title",$results) && key_exists("details", $results)){
+                    return response()->json($results);
                 }
             }
         }
         $string = view("metaAPI.configurations.{$group}.{$service}.{$operation}.result.template", compact('results'))->render();
+        dd($string);
         $json = json_decode($string);
         if ($json === null) {
             return $this->ResponseError(500, "Internal server error", "Parsing error");
@@ -354,7 +313,7 @@ class MetaController extends Controller
         $configuration->save();
     }
 
-    public function validateType($type, $value)
+    private function validateType($type, $value)
     {
         if ($value !== null) {
             switch ($type) {
@@ -378,7 +337,7 @@ class MetaController extends Controller
         }
     }
 
-    public function validateLimits($param, $value)
+    private function validateLimits($param, $value)
     {
         if ($value !== null) {
             if (key_exists('minimum', $param)) {
@@ -394,5 +353,46 @@ class MetaController extends Controller
             }
         }
         return true;
+    }
+
+    private function methodPost($group, $service, $operation, $source, $payloadType, $required, $data, $url)
+    {
+        $body = view("metaAPI.configurations.{$group}.{$service}.{$operation}.sources.{$source}-payload", $data)->render();
+        $body = json_decode($body, true);
+        if ($body === null) {
+            return $this->ResponseError(500, "Internal server error", "Parsing error in payload body");
+        }
+        try {
+            $response = Http::timeout(10)->withHeaders(['Content-Type' => $payloadType])->post($url, $body);
+            if (!$response->successful() && $required) {
+                return $this->ResponseError(503, 'Service failed', "{$source} failed");
+            }
+            if (key_exists('data', $response->json())) {
+                $results = $response->json()['data'];
+            } else {
+                $results = $response->json();
+            }
+            return $results;
+        } catch (ConnectionException $e) {
+            return $this->ResponseError(503, 'Source not available', "");
+        }
+    }
+
+    private function methodGet($url, $required, $source)
+    {
+        try {
+            $response = Http::timeout(10)->get($url);
+            if (!$response->successful() && $required) {
+                return $this->ResponseError(503, 'Service failed', "{$source} failed");
+            }
+            if (key_exists('data', $response->json())) {
+                $results = $response->json()['data'];
+            } else {
+                $results = $response->json();
+            }
+            return $results;
+        } catch (ConnectionException $e) {
+            return $this->ResponseError(503, 'Source not available', "");
+        }
     }
 }
