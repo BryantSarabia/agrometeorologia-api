@@ -51,4 +51,46 @@ trait UtilityMethods
         return (count(scandir($dir)) == 2);
     }
 
+    public function validateType($type, $value)
+    {
+        if ($value !== null) {
+            switch ($type) {
+                case 'string':
+                    return is_string($value);
+                    break;
+                case 'integer':
+                    return filter_var($value, FILTER_VALIDATE_INT);
+                    break;
+                case 'float':
+                    return filter_var($value, FILTER_VALIDATE_FLOAT);
+                    break;
+                case 'boolean':
+                    return filter_var($value, FILTER_VALIDATE_BOOL);
+                    break;
+                case 'date':
+                    $date = explode('-', $value);
+                    return checkdate($date[1], $date[2], $date[0]);
+                    break;
+            }
+        }
+    }
+
+    public function validateLimits($param, $value)
+    {
+        if ($value !== null) {
+            if (key_exists('minimum', $param)) {
+                if ($value < $param['minimum']) {
+                    return false;
+                }
+            }
+
+            if (key_exists('maximum', $param)) {
+                if ($value > $param['maximum']) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
 }

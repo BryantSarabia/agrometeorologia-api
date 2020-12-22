@@ -97,6 +97,7 @@ class MetaController extends Controller
                     }
                 }
             }
+
             foreach ($operation['sources'] as $key => $source) {
                 if (!is_string($source['description'])) {
                     return $this->ResponseError(400, 'Bad request', "Description must be a string at {$key}");
@@ -236,17 +237,16 @@ class MetaController extends Controller
                 }
                 if ($source['method'] === "GET") {
                     $results[$key] = $this->methodGet($url, $source['required'], $key);
-                    if(key_exists("code",$results) && key_exists("title",$results) && key_exists("details", $results)){
-                        return response()->json($results);
+                    if(!$results[$key]){
+                        return $this->ResponseError(503, 'Service failed', "{$key} failed");
                     }
                 } elseif ($source['method'] === "POST") {
                     $results[$key] = $this->methodPost($group, $service, $operation, $key, $source['payloadType'], $source['required'], $data, $url);
-                    if(key_exists("code",$results) && key_exists("title",$results) && key_exists("details", $results)){
-                        return response()->json($results);
+                    if(!$results[$key]){
+                        return $this->ResponseError(503, 'Service failed', "{$key} failed");
                     }
                 }
             }
-
         } else {
             $source = key($sources);
             if (isset($data)) {
@@ -259,23 +259,24 @@ class MetaController extends Controller
             }
             if ($sources[$source]['method'] === "GET") {
                 $results = $this->methodGet($url, $sources[$source]['required'], $source);
-                if(key_exists("code",$results) && key_exists("title",$results) && key_exists("details", $results)){
-                    return response()->json($results);
+                if(!$results){
+                    return $this->ResponseError(503, 'Service failed', "{$source} failed");
                 }
             } elseif ($sources[$source]['method'] === "POST") {
                 $results = $this->methodPost($group, $service, $operation, $source, $sources[$source]['payloadType'], $sources[$source]['required'], $data, $url);
-                if(key_exists("code",$results) && key_exists("title",$results) && key_exists("details", $results)){
-                    return response()->json($results);
+                if(!$results){
+                    return $this->ResponseError(503, 'Service failed', "{$source} failed");
                 }
             }
         }
-        $string = view("metaAPI.configurations.{$group}.{$service}.{$operation}.result.template", compact('results'))->render();
-        dd($string);
-        $json = json_decode($string);
-        if ($json === null) {
-            return $this->ResponseError(500, "Internal server error", "Parsing error");
+        if ($conf['operations'][$operation]['result']['type'] === "json") {
+            $string = view("metaAPI.configurations.{$group}.{$service}.{$operation}.result.template", compact('results'))->render();
+            $json = json_decode($string);
+            if ($json === null) {
+                return $this->ResponseError(500, "Internal server error", "Parsing error");
+            }
+            return response()->json($json);
         }
-        return response()->json($json);
     }
 
     public function delete($id)
@@ -313,48 +314,6 @@ class MetaController extends Controller
         $configuration->save();
     }
 
-    private function validateType($type, $value)
-    {
-        if ($value !== null) {
-            switch ($type) {
-                case 'string':
-                    return is_string($value);
-                    break;
-                case 'integer':
-                    return filter_var($value, FILTER_VALIDATE_INT);
-                    break;
-                case 'float':
-                    return filter_var($value, FILTER_VALIDATE_FLOAT);
-                    break;
-                case 'boolean':
-                    return filter_var($value, FILTER_VALIDATE_BOOL);
-                    break;
-                case 'date':
-                    $date = explode('-', $value);
-                    return checkdate($date[1], $date[2], $date[0]);
-                    break;
-            }
-        }
-    }
-
-    private function validateLimits($param, $value)
-    {
-        if ($value !== null) {
-            if (key_exists('minimum', $param)) {
-                if ($value < $param['minimum']) {
-                    return false;
-                }
-            }
-
-            if (key_exists('maximum', $param)) {
-                if ($value > $param['maximum']) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
     private function methodPost($group, $service, $operation, $source, $payloadType, $required, $data, $url)
     {
         $body = view("metaAPI.configurations.{$group}.{$service}.{$operation}.sources.{$source}-payload", $data)->render();
@@ -365,16 +324,16 @@ class MetaController extends Controller
         try {
             $response = Http::timeout(10)->withHeaders(['Content-Type' => $payloadType])->post($url, $body);
             if (!$response->successful() && $required) {
-                return $this->ResponseError(503, 'Service failed', "{$source} failed");
+                return false;
             }
             if (key_exists('data', $response->json())) {
-                $results = $response->json()['data'];
+                $result = $response->json()['data'];
             } else {
-                $results = $response->json();
+                $result = $response->json();
             }
-            return $results;
+            return $result;
         } catch (ConnectionException $e) {
-            return $this->ResponseError(503, 'Source not available', "");
+            return false;
         }
     }
 
@@ -383,16 +342,16 @@ class MetaController extends Controller
         try {
             $response = Http::timeout(10)->get($url);
             if (!$response->successful() && $required) {
-                return $this->ResponseError(503, 'Service failed', "{$source} failed");
+                return false;
             }
             if (key_exists('data', $response->json())) {
-                $results = $response->json()['data'];
+                $result = $response->json()['data'];
             } else {
-                $results = $response->json();
+                $result = $response->json();
             }
-            return $results;
+            return $result;
         } catch (ConnectionException $e) {
-            return $this->ResponseError(503, 'Source not available', "");
+            return false;
         }
     }
 }

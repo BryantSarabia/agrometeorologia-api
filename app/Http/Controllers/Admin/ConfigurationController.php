@@ -5,12 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\MetaApiConfiguration;
 use App\Traits\ResponsesJSON;
+use App\Traits\UtilityMethods;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Blade;
 
 class ConfigurationController extends Controller
 {
-    use ResponsesJSON;
+    use ResponsesJSON, UtilityMethods;
 
     public function __construct()
     {
@@ -48,19 +48,65 @@ class ConfigurationController extends Controller
 
         // Controllo le proprieta di ogni source
         foreach ($conf['operations'] as $key => $operation) {
-            if (!key_exists('sources', $conf['operations'][$key]) || !key_exists('result', $conf['operations'][$key])) {
-                return redirect()->back()->withErrors(['parameters' => "Missing parameters at {$key}"]);
+            if (!key_exists('sources', $operation) || !key_exists('result', $operation)) {
+                return redirect()->back()->withErrors(['souces' => "Missing sources at {$key}"]);
             }
-            foreach ($operation['sources'] as $key => $source) {
 
-                if (!is_string($source['description'])) {
-                    return redirect()->back()->withErrors(['description' => 'Description must be a string']);
-                } elseif (!filter_var($source['required'], FILTER_VALIDATE_BOOL)) {
-                    return redirect()->back()->withErrors(['required' => 'Required must be a boolean']);
+            if (key_exists('params', $operation)) {
+                foreach ($operation['params'] as $key => $param) {
+                    if (!key_exists('required', $param)) {
+                        return redirect()->back()->withErrors(['required' => "Missing required parameter at {$key}"]);
+                    }
+                    if (!$this->validateType("boolean", $param['required'])) {
+                        return redirect()->back()->withErrors(['required' => "Required must be a boolean at {$key}"]);
+                    }
+                    if (!key_exists('type', $param)) {
+                        return redirect()->back()->withErrors(['type' => "Missing type parameter at {$key}"]);
+                    }
+                    if (key_exists('description', $param)) {
+                        if (!$this->validateType("string", $param['description'])) {
+                            return redirect()->back()->withErrors(['description' => "Description parameter must be a string at {$key}"]);
+                        }
+                    }
+
+                    if (!$this->validateType("boolean", $param['required'])) {
+                        return redirect()->back()->withErrors(['required' => "Required parameter must be a boolean at {$key}"]);
+                    }
+
+                    if (!$this->validateType("string", $param['type'])) {
+                        return redirect()->back()->withErrors(['required' => "Type parameter must be a string at {$key}"]);
+                    }
                 }
             }
 
+            foreach ($operation['sources'] as $key => $source) {
+                if (!is_string($source['description'])) {
+                    return redirect()->back()->withErrors(['description' => "Description must be a string at {$key}"]);
+                }
+
+                if (!is_bool($source['required'])) {
+                    return redirect()->back()->withErrors(['required' => "Required must be a boolean at {$key}"]);
+                }
+
+                if (!key_exists('method', $source)) {
+                    return redirect()->back()->withErrors(['method' => "Missing method at {$key} source"]);
+                }
+
+                if ($source['method'] !== "GET" && $source['method'] !== "POST") {
+                    return redirect()->back()->withErrors(['method' => "Method not supported at {$key} source"]);
+                }
+
+                if ($source['method'] === "POST") {
+                    if (!key_exists("payloadType", $source)) {
+                        return redirect()->back()->withErrors(['payloadType' => "Missing payload type at at {$key} source"]);
+                    }
+                    if (!key_exists("payloadTemplate", $source)) {
+                        return redirect()->back()->withErrors(['payloadTemplate' => "Missing payload template at {$key} source"]);
+                    }
+                }
+            }
         }
+
         $group = $conf['group'];
         $service = $conf['service'];
         $obj = MetaApiConfiguration::where('configuration->group', $group)->where('configuration->service', $service)->first();
@@ -68,27 +114,35 @@ class ConfigurationController extends Controller
             return redirect()->back()->withErrors(['conf_exists' => 'This configuration already exists']);
         }
 
+        foreach ($conf['operations'] as $operation_key => $operation) {
+            foreach ($operation['sources'] as $source_key => $source) {
+                $path = resource_path('views') . "\\metaAPI" . "\\configurations\\" . $group . "\\" . $service . "\\" . $operation_key;
+                if (!is_dir($path . "\\sources")) {
+                    mkdir($path . "\\sources", 0777, true);
+                }
+                $file = fopen($path . "\\sources\\" . $source_key . ".blade.php", 'w');
+                fwrite($file, $source['urlTemplate']);
+                fclose($file);
+
+                if ($source['method'] === "POST") {
+                    $file = fopen($path . "\\sources\\" . $source_key . "-payload.blade.php", 'w');
+                    fwrite($file, $source['payloadTemplate']);
+                    fclose($file);
+                }
+            }
+            if (!is_dir($path . "\\result")) {
+                mkdir($path . "\\result", 0777, true);
+            }
+            $file = fopen($path . "\\result\\" . "template.blade.php", 'w');
+            fwrite($file, $operation['result']['template']);
+            fclose($file);
+
+        }
+
         $obj = MetaApiConfiguration::create([
             'configuration' => json_encode($conf),
         ]);
 
-        foreach($conf['operations'] as $operation_key => $operation){
-            foreach($operation['sources'] as $source_key => $source){
-                $path = resource_path('views') . "\\metaAPI" . "\\configurations\\"  . $group . "\\" . $service . "\\" . $operation_key;
-                if(!is_dir($path . "\\sources")){
-                    mkdir($path . "\\sources", 0777, true);
-                }
-                $file = fopen( $path . "\\sources\\" . $source_key . ".blade.php", 'w');
-                fwrite($file, $source['urlTemplate']);
-                fclose($file);
-            }
-            if(!is_dir($path . "\\result")){
-                mkdir($path . "\\result", 0777, true);
-            }
-            $file = fopen( $path . "\\result\\" . "template.blade.php", 'w');
-            fwrite($file, $operation['result']['template']);
-            fclose($file);
-        }
 
         return redirect()->route('admin.configuration.all')->with('message', 'Configuration created');
 

@@ -1,1 +1,1 @@
-https://reqres.in/api/users/$id
+https://reqres.in/api/users/{{$id}}

@@ -1,1 +1,1 @@
-@foreach($results as $result)@json($result)@endforeach
+@json($results)
