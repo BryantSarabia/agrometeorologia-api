@@ -7,6 +7,7 @@ use App\Models\MetaApiConfiguration;
 use App\Traits\ResponsesJSON;
 use App\Traits\UtilityMethods;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Yaml\Exception\DumpException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -148,21 +149,24 @@ class ConfigurationController extends Controller
         $configuration = json_decode($obj->configuration, true);
         $template = view('metaAPI.generate_specification', compact('configuration'))->render();
         $decoded_template = json_decode($template, true);
-        if($decoded_template === null){
+        if ($decoded_template === null) {
             return $this->ResponseError(500, "Internal server error", "Parsing error");
         }
-        try{
-            $yaml = Yaml::dump($decoded_template, 6);
-        } catch(DumpException $e){
-            return $this->ResponseError(500, "Internal server error", "Yaml parsing error");
-        }
-        $path = resource_path('views') . "\\metaAPI" . "\\configurations\\" . $group . "\\" . $service . "\\specification";
-        if(!is_dir($path)) {
-            mkdir($path, 0777, true);
-        }
-        $file = fopen($path . "\\specification.yaml", "w");
-        fwrite($file, $yaml);
-        fclose($file);
+        Storage::disk('public')->put($group . "-" . $service . ".json", $template);
+//
+//        try{
+//            $yaml = Yaml::dump($decoded_template, 9, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+//        } catch(DumpException $e){
+//            return $this->ResponseError(500, "Internal server error", "Yaml parsing error");
+//        }
+//        $path = resource_path('views') . "\\metaAPI" . "\\configurations\\" . $group . "\\" . $service . "\\specification";
+//        if(!is_dir($path)) {
+//            mkdir($path, 0777, true);
+//        }
+//        $file = fopen($path . "\\specification.yaml", "w");
+//        fwrite($file, $yaml);
+//        fclose($file);
+
         return redirect()->route('admin.configuration.all')->with('message', 'Configuration created');
 
     }
@@ -182,6 +186,23 @@ class ConfigurationController extends Controller
 
         return response()->json(json_decode($configuration->configuration));
     }
+
+    public function download_specification($id)
+    {
+        $configuration = MetaApiConfiguration::find($id);
+        if (!$configuration) {
+            return redirect()->route('admin.configuration.all')->withErrors(['error' => 'Configuration not found']);
+        }
+        $group_and_service = json_decode($configuration->configuration);
+        $specification_name = $group_and_service->group . "-" . $group_and_service->service . ".json";
+
+        if(Storage::disk('public')->exists($specification_name)){
+            return Storage::disk('public')->download($specification_name, $specification_name, [
+                'Content-Type' => 'application/json'
+            ]);
+        }
+    }
+
 
 
 }

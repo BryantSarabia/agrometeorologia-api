@@ -13,8 +13,8 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link {{Route::currentRouteName() == 'api.specification' ? 'active' : ''}}"
-                   href="{{ route('api.specification') }}">API Specification</a>
+                <a class="nav-link {{Route::currentRouteName() == 'api.specification.index' ? 'active' : ''}}"
+                   href="{{ route('api.specification.index') }}">API Specifications</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link {{Route::currentRouteName() == 'pricing' ? 'active' : ''}}" href="#">Pricing</a>

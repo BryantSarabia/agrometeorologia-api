@@ -17,7 +17,11 @@
     <script>
         window.onload = function () {
             const ui = SwaggerUIBundle({
+                @if(!isset($url))
                 url: "{{ asset('OpenAPI-spec/struttura-api.json') }}",
+                @else
+                url: "{{ $url }}",
+                @endif
                 dom_id: '#swagger-ui',
                 presets: [
                     SwaggerUIBundle.presets.apis,

@@ -36,6 +36,7 @@
                                 <th scope="col">Group</th>
                                 <th scope="col">Service</th>
                                 <th scope="col">Configuration file</th>
+                                <th scope="col">Specification file</th>
                                 <th scope="col">Status</th>
                                 <th scope="col">Delete</th>
                             </tr>
@@ -49,6 +50,10 @@
                                     <td>
                                         <a href="{{ route('admin.configuration.show', ['id' => $configuration->id]) }}"
                                            class="btn main-form-button" target="_blank">Show</a>
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('admin.configuration.download.specification', ['id' => $configuration->id]) }}"
+                                           class="btn main-form-button" target="_blank">Download</a>
                                     </td>
                                     <td>
                                         <div class="custom-control custom-switch">

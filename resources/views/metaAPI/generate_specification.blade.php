@@ -34,7 +34,7 @@
                         "type": "{{$param['type']}}"
                     },
                     "required": {{json_encode($param['required'])}}
-                }
+                }{{$loop->last ? '' : ','}}
             @endforeach],
     @endif
     "{{strtolower(reset($operation['sources'])['method'])}}": {

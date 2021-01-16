@@ -9,10 +9,10 @@ use App\Traits\ResponsesJSON;
 use App\Traits\UtilityMethods;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Http;
-use Illuminate\View\View;
 use Symfony\Component\Yaml\Exception\DumpException;
+use Illuminate\Support\Facades\Storage;
+
 
 class MetaController extends Controller
 {
@@ -159,29 +159,29 @@ class MetaController extends Controller
 
         }
 
-        $obj = MetaApiConfiguration::make([
+        $obj = MetaApiConfiguration::create([
             'configuration' => json_encode($conf),
         ]);
 
         $configuration = json_decode($obj->configuration, true);
         $template = view('metaAPI.generate_specification', compact('configuration'))->render();
         $decoded_template = json_decode($template, true);
-        if($decoded_template === null){
+        if ($decoded_template === null) {
             return $this->ResponseError(500, "Internal server error", "Parsing error");
         }
-        try{
-            $yaml = Yaml::dump($decoded_template, 9, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
-        } catch(DumpException $e){
-            return $this->ResponseError(500, "Internal server error", "Yaml parsing error");
-        }
-//        dd($yaml);
-        $path = resource_path('views') . "\\metaAPI" . "\\configurations\\" . $group . "\\" . $service . "\\specification";
-        if(!is_dir($path)) {
-            mkdir($path, 0777, true);
-        }
-        $file = fopen($path . "\\specification.yaml", "w");
-        fwrite($file, $yaml);
-        fclose($file);
+        Storage::disk('public')->put($group . "-" . $service . ".json", $template);
+//        try{
+//            $yaml = Yaml::dump($decoded_template, 9, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+//        } catch(DumpException $e){
+//            return $this->ResponseError(500, "Internal server error", "Yaml parsing error");
+//        }
+//        $path = resource_path('views') . "\\metaAPI" . "\\configurations\\" . $group . "\\" . $service . "\\specification";
+//        if(!is_dir($path)) {
+//            mkdir($path, 0777, true);
+//        }
+//        $file = fopen($path . "\\specification.yaml", "w");
+//        fwrite($file, $yaml);
+//        fclose($file);
 
         return response()->json(['data' => $obj], 201, ['Content-Type' => 'application/json']);
 
@@ -258,12 +258,12 @@ class MetaController extends Controller
                 }
                 if (strtoupper($source['method']) === "GET") {
                     $results[$key] = $this->methodGet($url, $source['required'], $key);
-                    if(!$results[$key]){
+                    if (!$results[$key]) {
                         return $this->ResponseError(503, 'Service failed', "{$key} failed");
                     }
                 } elseif (strtoupper($source['method']) === "POST") {
                     $results[$key] = $this->methodPost($group, $service, $operation, $key, $source['payloadType'], $source['required'], $data, $url);
-                    if(!$results[$key]){
+                    if (!$results[$key]) {
                         return $this->ResponseError(503, 'Service failed', "{$key} failed");
                     }
                 }
@@ -280,12 +280,12 @@ class MetaController extends Controller
             }
             if (strtoupper($sources[$source]['method']) === "GET") {
                 $results = $this->methodGet($url, $sources[$source]['required'], $source);
-                if(!$results){
+                if (!$results) {
                     return $this->ResponseError(503, 'Service failed', "{$source} failed");
                 }
             } elseif (strtoupper($sources[$source]['method']) === "POST") {
                 $results = $this->methodPost($group, $service, $operation, $source, $sources[$source]['payloadType'], $sources[$source]['required'], $data, $url);
-                if(!$results){
+                if (!$results) {
                     return $this->ResponseError(503, 'Service failed', "{$source} failed");
                 }
             }
@@ -311,6 +311,9 @@ class MetaController extends Controller
         $this->rrmdir($dir);
         if ($this->is_dir_empty(resource_path('views') . DIRECTORY_SEPARATOR . "metaAPI\\configurations" . DIRECTORY_SEPARATOR . $obj->group)) {
             rmdir(resource_path('views') . DIRECTORY_SEPARATOR . "metaAPI\\configurations" . DIRECTORY_SEPARATOR . $obj->group);
+        }
+        if (Storage::disk('public')->exists($obj->group . "-" . $obj->service . ".json")) {
+            Storage::disk('public')->delete($obj->group . "-" . $obj->service . ".json");
         }
         $configuration->delete();
 
