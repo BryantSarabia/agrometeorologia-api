@@ -67,7 +67,15 @@ class MetaController extends Controller
         // Controllo le proprieta di ogni source
         foreach ($conf['operations'] as $key => $operation) {
             if (!key_exists('sources', $operation) || !key_exists('result', $operation)) {
-                return $this->ResponseError(400, 'Bad request', "Missing parameters at {$key}");
+                return $this->ResponseError(400, 'Bad request', "Missing sources  at {$key}");
+            }
+
+            if (!key_exists('description', $operation)) {
+                return $this->ResponseError(400, 'Bad request', "Missing description at {$key}");
+            }
+
+            if (!is_string($operation['description'])) {
+                return $this->ResponseError(400, 'Bad request', "Description mus be a string at {$key}");
             }
 
             if (key_exists('params', $operation)) {
@@ -79,6 +87,11 @@ class MetaController extends Controller
                     if (!$this->validateType("boolean", $param['required'])) {
                         return $this->ResponseError(400, 'Bad request', "Required must be a boolean at {$key}");
                     }
+
+                    if ($param['required'] === false && !key_exists('default', $param)) {
+                        return $this->ResponseError(400, 'Bad request', "Default parameter is missing at {$key}");
+                    }
+
 
                     if (!key_exists('type', $param)) {
                         return $this->ResponseError(400, 'Bad request', "Missing type parameter at {$key}");
@@ -101,9 +114,6 @@ class MetaController extends Controller
             }
 
             foreach ($operation['sources'] as $key => $source) {
-                if (!is_string($source['description'])) {
-                    return $this->ResponseError(400, 'Bad request', "Description must be a string at {$key}");
-                }
 
                 if (!is_bool($source['required'])) {
                     return $this->ResponseError(400, 'Bad request', "Required must be a boolean at {$key}");

@@ -1,0 +1,1 @@
+https://agroambiente.regione.abruzzo.it/api/aedita_meteo/get_stations

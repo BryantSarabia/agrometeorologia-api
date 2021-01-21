@@ -14,7 +14,7 @@
     },
     "servers": [
         {
-        "url": "http://localhost:8000/meta-api/services/{{$configuration['group']}}/{{$configuration['service']}}",
+        "url": "http://127.0.0.1:8000/meta-api/services/{{$configuration['group']}}/{{$configuration['service']}}",
         "variables": {},
         "description": "Main server"
         }
@@ -32,13 +32,16 @@
                     @endif
                     "schema": {
                         "type": "{{$param['type']}}"
+                        @if(key_exists('default',$param))
+                        ,"default": "{{$param['default']}}"
+                        @endif
                     },
                     "required": {{json_encode($param['required'])}}
                 }{{$loop->last ? '' : ','}}
             @endforeach],
     @endif
-    "{{strtolower(reset($operation['sources'])['method'])}}": {
-        "summary": "{{reset($operation['sources'])['description']}}",
+    "get": {
+        "summary": "{{$operation['description']}}",
         "description": "",
         "operationId": "{{$operation_key}}",
         "responses": {
@@ -46,9 +49,6 @@
                 "description": "OK",
                 "content": {
                     "application/json": {
-                        "schema":   {
-                            "type": "object"
-                        }
                     }
                 }
             }

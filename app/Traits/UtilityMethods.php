@@ -65,7 +65,7 @@ trait UtilityMethods
                     return filter_var($value, FILTER_VALIDATE_FLOAT);
                     break;
                 case 'boolean':
-                    return filter_var($value, FILTER_VALIDATE_BOOL);
+                    return is_bool($value);
                     break;
                 case 'date':
                     $date = explode('-', $value);

@@ -11,7 +11,6 @@
 
             <div class="row main-content-table justify-content-center h-75">
                 <div class="col-12">
-                    @if($configurations->count() > 0)
                         <table class="table">
                             <thead>
                             <tr>
@@ -52,7 +51,6 @@
 
                             </tbody>
                         </table>
-                    @endif
 
                 </div>
 

@@ -55,6 +55,14 @@ class ConfigurationController extends Controller
                 return redirect()->back()->withErrors(['souces' => "Missing sources at {$key}"]);
             }
 
+            if(!key_exists('description', $operation)){
+                return redirect()->back()->withErrors(['description' => "Description missing at {$key}"]);
+            }
+
+            if (!is_string($operation['description'])) {
+                return redirect()->back()->withErrors(['description' => "Description must be a string at {$key}"]);
+            }
+
             if (key_exists('params', $operation)) {
                 foreach ($operation['params'] as $key => $param) {
                     if (!key_exists('required', $param)) {
@@ -62,6 +70,9 @@ class ConfigurationController extends Controller
                     }
                     if (!$this->validateType("boolean", $param['required'])) {
                         return redirect()->back()->withErrors(['required' => "Required must be a boolean at {$key}"]);
+                    }
+                    if($param['required'] === false && !key_exists('default', $param)){
+                        return redirect()->back()->withErrors(['default' => "Default parameter is missing at {$key}"]);
                     }
                     if (!key_exists('type', $param)) {
                         return redirect()->back()->withErrors(['type' => "Missing type parameter at {$key}"]);
@@ -83,9 +94,6 @@ class ConfigurationController extends Controller
             }
 
             foreach ($operation['sources'] as $key => $source) {
-                if (!is_string($source['description'])) {
-                    return redirect()->back()->withErrors(['description' => "Description must be a string at {$key}"]);
-                }
 
                 if (!is_bool($source['required'])) {
                     return redirect()->back()->withErrors(['required' => "Required must be a boolean at {$key}"]);
@@ -150,7 +158,7 @@ class ConfigurationController extends Controller
         $template = view('metaAPI.generate_specification', compact('configuration'))->render();
         $decoded_template = json_decode($template, true);
         if ($decoded_template === null) {
-            return $this->ResponseError(500, "Internal server error", "Parsing error");
+            return redirect()->back()->withErrors(['parsing_error' => 'Parsing error, control the file']);
         }
         Storage::disk('public')->put($group . "-" . $service . ".json", $template);
 //
@@ -196,13 +204,12 @@ class ConfigurationController extends Controller
         $group_and_service = json_decode($configuration->configuration);
         $specification_name = $group_and_service->group . "-" . $group_and_service->service . ".json";
 
-        if(Storage::disk('public')->exists($specification_name)){
+        if (Storage::disk('public')->exists($specification_name)) {
             return Storage::disk('public')->download($specification_name, $specification_name, [
                 'Content-Type' => 'application/json'
             ]);
         }
     }
-
 
 
 }
