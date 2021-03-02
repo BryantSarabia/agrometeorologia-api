@@ -8,7 +8,7 @@
                 <img class="d-block w-100" src="{{ asset("img/api.jpg") }}" alt="First slide">
                 <div class="carousel-caption d-none d-md-block">
                     <h3>API Documentation</h3>
-                    <a href="{{ route('api.specification') }}" class="btn home-button mx-2">Documentation</a>
+                    <a href="{{ route('api.specification.index') }}" class="btn home-button mx-2">Documentation</a>
                 </div>
             </div>
             <div class="carousel-item">
