@@ -42,10 +42,10 @@ class Kernel extends HttpKernel
 
         'api' => [
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            //'api_key',
-            // 'limit',
-            //'throttle:30',
-            // 'accept',
+            'api_key',
+            'limit',
+            'throttle:30',
+//             'accept',
            // 'content_type'
         ],
 

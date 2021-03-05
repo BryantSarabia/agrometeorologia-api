@@ -1,1 +1,0 @@
-{"data": [@foreach($results as $station){"id": "{{$station['id_station']}}","name": "{{$station['name']}}","code": "{{$station['cod_station']}}","province": "{{$station['province'] == null ? null : $station['province']}}", "disabled": {{$station['disabled']}},"coordinates": {"lat": {{$station['lat']}},"lon": {{$station['lon']}}}}{{$loop->last ? '' : ','}}@endforeach]}

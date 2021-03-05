@@ -36,7 +36,7 @@
                                 <th scope="col">Name</th>
                                 <th scope="col">User</th>
                                 <th scope="col">License</th>
-                                <th scope="col">Type</th>
+                                <th scope="col">Delete</th>
                             </tr>
                             </thead>
                             <tbody>

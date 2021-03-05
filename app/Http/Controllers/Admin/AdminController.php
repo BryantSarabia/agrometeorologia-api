@@ -60,7 +60,7 @@ class AdminController extends Controller
 
     public function analytics()
     {
-        $requests = APIRequest::where('date', '>', date('Y-01-01'))->get()->sortBy('date');
+        $requests = APIRequest::where('date', '>', date('Y-01-01'))->where('date', '<', date('Y-12-31'))->get()->sortBy('date');
         $total_requests = $requests->mapToGroups(function ($item, $key) {
             return [date('F', strtotime($item->date)) => $item];
         });
