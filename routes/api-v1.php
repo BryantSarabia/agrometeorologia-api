@@ -40,6 +40,7 @@ Route::post('pests/reports','PestController@report')->name('api.v1.pests.report'
 Route::get('pests/reports','PestController@getReports')->name('api.v1.pests.getReports')->withoutMiddleware('api');; // Date le coordinate ed il raggio ritorna le segnalazioni d'interesse
 Route::get('reports','PestController@index')->name('api.v1.pest.reports.index')->withoutMiddleware('api');; // Ritorna tutte le segnalazioni nell'ultimo mese.
 
+/********* Locations tag **********/
 Route::get('me/locations', 'LocationController@index')->name('api.v1.me.locations.index')->withoutMiddleware('api');
 Route::delete('me/locations', 'LocationController@deleteAll')->name('api.v1.me.locations.deleteAll')->withoutMiddleware('api');
 Route::post('me/locations','LocationController@save')->name('api.v1.me.locations.save')->withoutMiddleware('api');

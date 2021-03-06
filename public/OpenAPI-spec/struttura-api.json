@@ -15,8 +15,17 @@
   },
   "servers": [
     {
-      "url": "http://localhost:8000/api/v1",
-      "variables": {},
+      "url": "http://localhost:{port}/api/{versioneAPI}",
+      "variables": {
+          "port": {
+              "default": "8000",
+              "description": "Numero di porta del server"
+          },
+          "versioneAPI": {
+              "default": "v1",
+              "description": "Versione dell'API"
+          }
+      },
       "description": "Main server"
     }
   ],
